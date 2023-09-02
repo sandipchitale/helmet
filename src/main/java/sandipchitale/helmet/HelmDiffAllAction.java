@@ -3,9 +3,13 @@ package sandipchitale.helmet;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.intellij.diff.DiffContentFactory;
+import com.intellij.diff.DiffManager;
+import com.intellij.diff.contents.DiffContent;
+import com.intellij.diff.requests.SimpleDiffRequest;
+import com.intellij.diff.util.DiffUserDataKeys;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
@@ -33,7 +37,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -111,7 +114,7 @@ public class HelmDiffAllAction extends AnAction {
         DialogBuilder builder = new DialogBuilder(e.getProject());
         builder.setCenterPanel(panel);
         builder.setDimensionServiceKey("SelectNamespaceHelmReleaseRevisionForDiff");
-        builder.setTitle("Select Helm Release.Revision [ Namespace ] for Diff");
+        builder.setTitle("Select Helm Release.Revisions [ Namespaces ] for Diff");
         builder.removeAllActions();
         builder.addOkAction();
         builder.addCancelAction();
@@ -133,13 +136,6 @@ public class HelmDiffAllAction extends AnAction {
 
         FileEditorManagerEx fileEditorManager = (FileEditorManagerEx) FileEditorManager.getInstance(project);
 
-
-        EditorWindow currentWindow = fileEditorManager.getCurrentWindow();
-        if (currentWindow != null) {
-            fileEditorManager.createSplitter(JSplitPane.VERTICAL_SPLIT, currentWindow);
-            currentWindow = fileEditorManager.getCurrentWindow();
-        }
-
         try {
             String title1 = String.format(" ( %s.%s ) [ %s ]",
                     namespaceSecretStringStringTuple41.getV3(),
@@ -159,32 +155,6 @@ public class HelmDiffAllAction extends AnAction {
 
             JsonNode jsonNode1 = objectMapper.readTree(releaseJsonString1);
 
-            // Chart Info
-            JsonNode chartInfoNode1 = jsonNode1.get("chart").get("values");
-            LightVirtualFile charInfoLightVirtualFile1 = new LightVirtualFile("Chart Info" + title1,
-                    PlainTextFileType.INSTANCE,
-                    String.format("Chart: %s\nStatus: %s\n",
-                            jsonNode1.get("name").asText(),
-                            jsonNode1.get("info").get("status").asText()));
-            charInfoLightVirtualFile1.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            charInfoLightVirtualFile1.setLanguage(PlainTextLanguage.INSTANCE);
-            if (currentWindow == null) {
-                fileEditorManager.openFile(charInfoLightVirtualFile1, true, true);
-            } else {
-                fileEditorManager.openFileWithProviders(charInfoLightVirtualFile1, true, currentWindow);
-            }
-
-            // Values
-            JsonNode valuesNode1 = jsonNode1.get("chart").get("values");
-            LightVirtualFile valuesLightVirtualFile1 = new LightVirtualFile("Values" + title1,
-                    PlainTextFileType.INSTANCE,
-                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(valuesNode1));
-            valuesLightVirtualFile1.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            valuesLightVirtualFile1.setLanguage(PlainTextLanguage.INSTANCE);
-            fileEditorManager.openFile(valuesLightVirtualFile1, true, true);
-
             // Templates
             StringBuilder templatesStringBuilder1 = new StringBuilder();
             ArrayNode templates1 = (ArrayNode) jsonNode1.get("chart").get("templates");
@@ -196,22 +166,6 @@ public class HelmDiffAllAction extends AnAction {
                 templatesStringBuilder1.append("\n");
                 templatesStringBuilder1.append("----\n");
             });
-            LightVirtualFile templatesvaluesLightVirtualFile1 = new LightVirtualFile("Templates" + title1,
-                    PlainTextFileType.INSTANCE,
-                    templatesStringBuilder1.toString());
-            templatesvaluesLightVirtualFile1.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            templatesvaluesLightVirtualFile1.setLanguage(PlainTextLanguage.INSTANCE);
-            fileEditorManager.openFile(templatesvaluesLightVirtualFile1, true, true);
-
-            // Manifest
-            LightVirtualFile manifestLightVirtualFile1 = new LightVirtualFile("Manifest" + title1,
-                    PlainTextFileType.INSTANCE,
-                    jsonNode1.get("manifest").asText().replace("\\n", "\n"));
-            manifestLightVirtualFile1.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            manifestLightVirtualFile1.setLanguage(PlainTextLanguage.INSTANCE);
-            fileEditorManager.openFile(manifestLightVirtualFile1, true, true);
 
             // Hooks
             StringBuilder hooksStringBuilder1 = new StringBuilder();
@@ -221,36 +175,6 @@ public class HelmDiffAllAction extends AnAction {
                 hooksStringBuilder1.append(hook.get("manifest").asText().replace("\\n", "\n"));
                 hooksStringBuilder1.append("----\n");
             });
-            LightVirtualFile hooksLightVirtualFile1 = new LightVirtualFile("Hooks" + title1,
-                    PlainTextFileType.INSTANCE,
-                    hooksStringBuilder1.toString());
-            hooksLightVirtualFile1.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            hooksLightVirtualFile1.setLanguage(PlainTextLanguage.INSTANCE);
-            fileEditorManager.openFile(hooksLightVirtualFile1, true, true);
-
-            // Notes
-            LightVirtualFile notesLightVirtualFile1 = new LightVirtualFile("Notes" + title1,
-                    PlainTextFileType.INSTANCE,
-                    jsonNode1.get("info").get("notes").asText().replace("\\n", "\n"));
-            notesLightVirtualFile1.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            notesLightVirtualFile1.setLanguage(PlainTextLanguage.INSTANCE);
-            fileEditorManager.openFile(notesLightVirtualFile1, true, true);
-
-            LightVirtualFile sacrificeVirtualFile = new LightVirtualFile("_",
-                    PlainTextFileType.INSTANCE,
-                    "");
-            sacrificeVirtualFile.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            sacrificeVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
-            fileEditorManager.openFile(sacrificeVirtualFile, true, true);
-
-            currentWindow = fileEditorManager.getCurrentWindow();
-            if (currentWindow != null) {
-                fileEditorManager.createSplitter(JSplitPane.VERTICAL_SPLIT, currentWindow);
-                currentWindow = fileEditorManager.getCurrentWindow();
-            }
 
             String title2 = String.format(" ( %s.%s ) [ %s ]",
                     namespaceSecretStringStringTuple42.getV3(),
@@ -270,32 +194,6 @@ public class HelmDiffAllAction extends AnAction {
 
             JsonNode jsonNode2 = objectMapper.readTree(releaseJsonString2);
 
-            // Chart Info
-            JsonNode chartInfoNode2 = jsonNode2.get("chart").get("values");
-            LightVirtualFile charInfoLightVirtualFile2 = new LightVirtualFile("Chart Info" + title2,
-                    PlainTextFileType.INSTANCE,
-                    String.format("Chart: %s\nStatus: %s\n",
-                            jsonNode2.get("name").asText(),
-                            jsonNode2.get("info").get("status").asText()));
-            charInfoLightVirtualFile2.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            charInfoLightVirtualFile2.setLanguage(PlainTextLanguage.INSTANCE);
-            if (currentWindow == null) {
-                fileEditorManager.openFile(charInfoLightVirtualFile2, true, true);
-            } else {
-                fileEditorManager.openFileWithProviders(charInfoLightVirtualFile2, true, currentWindow);
-            }
-
-            // Values
-            JsonNode valuesNode2 = jsonNode2.get("chart").get("values");
-            LightVirtualFile valuesLightVirtualFile2 = new LightVirtualFile("Values" + title2,
-                    PlainTextFileType.INSTANCE,
-                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(valuesNode2));
-            valuesLightVirtualFile2.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            valuesLightVirtualFile2.setLanguage(PlainTextLanguage.INSTANCE);
-            fileEditorManager.openFile(valuesLightVirtualFile2, true, true);
-
             // Templates
             StringBuilder templatesStringBuilder2 = new StringBuilder();
             ArrayNode templates2 = (ArrayNode) jsonNode2.get("chart").get("templates");
@@ -307,22 +205,6 @@ public class HelmDiffAllAction extends AnAction {
                 templatesStringBuilder2.append("\n");
                 templatesStringBuilder2.append("----\n");
             });
-            LightVirtualFile templatesvaluesLightVirtualFile2 = new LightVirtualFile("Templates" + title2,
-                    PlainTextFileType.INSTANCE,
-                    templatesStringBuilder2.toString());
-            templatesvaluesLightVirtualFile2.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            templatesvaluesLightVirtualFile2.setLanguage(PlainTextLanguage.INSTANCE);
-            fileEditorManager.openFile(templatesvaluesLightVirtualFile2, true, true);
-
-            // Manifest
-            LightVirtualFile manifestLightVirtualFile2 = new LightVirtualFile("Manifest" + title2,
-                    PlainTextFileType.INSTANCE,
-                    jsonNode2.get("manifest").asText().replace("\\n", "\n"));
-            manifestLightVirtualFile2.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            manifestLightVirtualFile2.setLanguage(PlainTextLanguage.INSTANCE);
-            fileEditorManager.openFile(manifestLightVirtualFile2, true, true);
 
             // Hooks
             StringBuilder hooksStringBuilder2 = new StringBuilder();
@@ -332,22 +214,72 @@ public class HelmDiffAllAction extends AnAction {
                 hooksStringBuilder2.append(hook.get("manifest").asText().replace("\\n", "\n"));
                 hooksStringBuilder2.append("----\n");
             });
-            LightVirtualFile hooksLightVirtualFile2 = new LightVirtualFile("Hooks" + title2,
-                    PlainTextFileType.INSTANCE,
-                    hooksStringBuilder2.toString());
-            hooksLightVirtualFile2.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            hooksLightVirtualFile2.setLanguage(PlainTextLanguage.INSTANCE);
-            fileEditorManager.openFile(hooksLightVirtualFile2, true, true);
 
-            // Notes
-            LightVirtualFile notesLightVirtualFile2 = new LightVirtualFile("Notes" + title2,
+            // Sacrificial file
+            LightVirtualFile sacrificeVirtualFile = new LightVirtualFile("_",
                     PlainTextFileType.INSTANCE,
-                    jsonNode2.get("info").get("notes").asText().replace("\\n", "\n"));
-            notesLightVirtualFile2.setWritable(false);
-            // Figure out a way to set language for syntax highlighting based on file extension
-            notesLightVirtualFile2.setLanguage(PlainTextLanguage.INSTANCE);
-            fileEditorManager.openFile(notesLightVirtualFile2, true, true);
+                    "");
+            sacrificeVirtualFile.setWritable(false);
+            sacrificeVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
+            fileEditorManager.openFile(sacrificeVirtualFile, true);
+
+            EditorWindow currentWindow = fileEditorManager.getCurrentWindow();
+            fileEditorManager.createSplitter(JSplitPane.VERTICAL_SPLIT, currentWindow);
+
+            DiffManager diffManager = DiffManager.getInstance();
+
+            // Chart Info diff
+            DiffContent chartInfoContent1 = DiffContentFactory.getInstance().create(project,
+                    String.format("Chart: %s\nStatus: %s\n",
+                            jsonNode1.get("name").asText(),
+                            jsonNode1.get("info").get("status").asText()));
+            DiffContent chartInfoContent2 = DiffContentFactory.getInstance().create(project, String.format("Chart: %s\nStatus: %s\n",
+                    jsonNode2.get("name").asText(),
+                    jsonNode2.get("info").get("status").asText()));
+            chartInfoContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+            chartInfoContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+            SimpleDiffRequest chartInfoDiffRequest = new SimpleDiffRequest("Chart Info" + title1 + " vs " + "Chart Info" + title2, chartInfoContent1, chartInfoContent2, "Chart Info" + title1, "Chart Info" + title2);
+            diffManager.showDiff(project, chartInfoDiffRequest);
+
+            // Values diff
+            DiffContent valuesContent1 = DiffContentFactory.getInstance().create(project, objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode1.get("chart").get("values")));
+            DiffContent valuesContent2 = DiffContentFactory.getInstance().create(project, objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode2.get("chart").get("values")));
+            valuesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+            valuesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+            SimpleDiffRequest valuesDiffRequest = new SimpleDiffRequest("Values" + title1 + " vs " + "Values" + title2, valuesContent1, valuesContent2, "Values" + title1, "Values" + title2);
+            diffManager.showDiff(project, valuesDiffRequest);
+
+            // Templates diff
+            DiffContent templatesContent1 = DiffContentFactory.getInstance().create(project, templatesStringBuilder1.toString());
+            DiffContent templatesContent2 = DiffContentFactory.getInstance().create(project, templatesStringBuilder2.toString());
+            templatesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+            templatesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+            SimpleDiffRequest templatesDiffRequest = new SimpleDiffRequest("Templates" + title1 + " vs " + "Templates" + title2, templatesContent1, templatesContent2, "Templates" + title1, "Templates" + title2);
+            diffManager.showDiff(project, templatesDiffRequest);
+
+            // Manifests diff
+            DiffContent manifestsContent1 = DiffContentFactory.getInstance().create(project, jsonNode1.get("manifest").asText().replace("\\n", "\n"));
+            DiffContent manifestsContent2 = DiffContentFactory.getInstance().create(project, jsonNode2.get("manifest").asText().replace("\\n", "\n"));
+            manifestsContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+            manifestsContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+            SimpleDiffRequest manifestsDiffsRequest = new SimpleDiffRequest("Manifests" + title1 + " vs " + "Manifests" + title2, manifestsContent1, manifestsContent2, "Manifests" + title1, "Manifests" + title2);
+            diffManager.showDiff(project, manifestsDiffsRequest);
+
+            // Hooks diffs
+            DiffContent hooksContent1 = DiffContentFactory.getInstance().create(project, hooksStringBuilder1.toString());
+            DiffContent hooksContent2 = DiffContentFactory.getInstance().create(project, hooksStringBuilder2.toString());
+            hooksContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+            hooksContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+            SimpleDiffRequest hooksDiffRequest = new SimpleDiffRequest("Hooks" + title1 + " vs " + "Hooks" + title2, hooksContent1, hooksContent2, "Hooks" + title1, "Hooks" + title2);
+            diffManager.showDiff(project, hooksDiffRequest);
+
+            // Notes diffs
+            DiffContent notesContent1 = DiffContentFactory.getInstance().create(project, jsonNode1.get("info").get("notes").asText().replace("\\n", "\n"));
+            DiffContent notesContent2 = DiffContentFactory.getInstance().create(project, jsonNode2.get("info").get("notes").asText().replace("\\n", "\n"));
+            notesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+            notesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+            SimpleDiffRequest notesDiffRequest = new SimpleDiffRequest("Notes" + title1 + " vs " + "Notes" + title2, notesContent1, notesContent2, "Notes" + title1, "Notes" + title2);
+            diffManager.showDiff(project, notesDiffRequest);
 
             fileEditorManager.closeFile(sacrificeVirtualFile);
         } catch (IOException e) {
