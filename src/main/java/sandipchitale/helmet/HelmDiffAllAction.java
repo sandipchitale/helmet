@@ -140,18 +140,18 @@ public class HelmDiffAllAction extends AnAction {
             currentWindow = fileEditorManager.getCurrentWindow();
         }
 
-        String title1 = String.format(" ( %s.%s ) [ %s ]",
-                namespaceSecretStringStringTuple41.getV3(),
-                namespaceSecretStringStringTuple41.getV4(),
-                namespaceSecretStringStringTuple41.getV1().getMetadata().getName()
-        );
-
-        Secret secret1 = namespaceSecretStringStringTuple41.getV2();
-        String release1 = secret1.getData().get("release");
-        byte[] decodedRelease1 = Base64Coder.decode(release1);
-
-        decodedRelease1 = Base64Coder.decode(new String(decodedRelease1, StandardCharsets.UTF_8));
         try {
+            String title1 = String.format(" ( %s.%s ) [ %s ]",
+                    namespaceSecretStringStringTuple41.getV3(),
+                    namespaceSecretStringStringTuple41.getV4(),
+                    namespaceSecretStringStringTuple41.getV1().getMetadata().getName()
+            );
+
+            Secret secret1 = namespaceSecretStringStringTuple41.getV2();
+            String release1 = secret1.getData().get("release");
+            byte[] decodedRelease1 = Base64Coder.decode(release1);
+
+            decodedRelease1 = Base64Coder.decode(new String(decodedRelease1, StandardCharsets.UTF_8));
             GZIPInputStream gzipInputStream1 = new GZIPInputStream(new ByteArrayInputStream(decodedRelease1));
             ByteArrayOutputStream byteArrayOutputStream1 = new ByteArrayOutputStream();
             IOUtils.copy(gzipInputStream1, byteArrayOutputStream1);
@@ -237,37 +237,32 @@ public class HelmDiffAllAction extends AnAction {
             // Figure out a way to set language for syntax highlighting based on file extension
             notesLightVirtualFile1.setLanguage(PlainTextLanguage.INSTANCE);
             fileEditorManager.openFile(notesLightVirtualFile1, true, true);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
+            LightVirtualFile sacrificeVirtualFile = new LightVirtualFile("_",
+                    PlainTextFileType.INSTANCE,
+                    "");
+            sacrificeVirtualFile.setWritable(false);
+            // Figure out a way to set language for syntax highlighting based on file extension
+            sacrificeVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
+            fileEditorManager.openFile(sacrificeVirtualFile, true, true);
 
-        LightVirtualFile sacrificeVirtualFile = new LightVirtualFile("_",
-                PlainTextFileType.INSTANCE,
-                "");
-        sacrificeVirtualFile.setWritable(false);
-        // Figure out a way to set language for syntax highlighting based on file extension
-        sacrificeVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
-        fileEditorManager.openFile(sacrificeVirtualFile, true, true);
-
-        currentWindow = fileEditorManager.getCurrentWindow();
-        if (currentWindow != null) {
-            fileEditorManager.createSplitter(JSplitPane.VERTICAL_SPLIT, currentWindow);
             currentWindow = fileEditorManager.getCurrentWindow();
-        }
+            if (currentWindow != null) {
+                fileEditorManager.createSplitter(JSplitPane.VERTICAL_SPLIT, currentWindow);
+                currentWindow = fileEditorManager.getCurrentWindow();
+            }
 
-        String title2 = String.format(" ( %s.%s ) [ %s ]",
-                namespaceSecretStringStringTuple42.getV3(),
-                namespaceSecretStringStringTuple42.getV4(),
-                namespaceSecretStringStringTuple42.getV1().getMetadata().getName()
-        );
+            String title2 = String.format(" ( %s.%s ) [ %s ]",
+                    namespaceSecretStringStringTuple42.getV3(),
+                    namespaceSecretStringStringTuple42.getV4(),
+                    namespaceSecretStringStringTuple42.getV1().getMetadata().getName()
+            );
 
-        Secret secret2 = namespaceSecretStringStringTuple42.getV2();
-        String release2 = secret2.getData().get("release");
-        byte[] decodedRelease2 = Base64Coder.decode(release2);
+            Secret secret2 = namespaceSecretStringStringTuple42.getV2();
+            String release2 = secret2.getData().get("release");
+            byte[] decodedRelease2 = Base64Coder.decode(release2);
 
-        decodedRelease2 = Base64Coder.decode(new String(decodedRelease2, StandardCharsets.UTF_8));
-        try {
+            decodedRelease2 = Base64Coder.decode(new String(decodedRelease2, StandardCharsets.UTF_8));
             GZIPInputStream gzipInputStream2 = new GZIPInputStream(new ByteArrayInputStream(decodedRelease2));
             ByteArrayOutputStream byteArrayOutputStream2 = new ByteArrayOutputStream();
             IOUtils.copy(gzipInputStream2, byteArrayOutputStream2);
@@ -303,8 +298,8 @@ public class HelmDiffAllAction extends AnAction {
 
             // Templates
             StringBuilder templatesStringBuilder2 = new StringBuilder();
-            ArrayNode templates1 = (ArrayNode) jsonNode2.get("chart").get("templates");
-            templates1.forEach(template -> {
+            ArrayNode templates2 = (ArrayNode) jsonNode2.get("chart").get("templates");
+            templates2.forEach(template -> {
                 templatesStringBuilder2.append("Template: ");
                 templatesStringBuilder2.append(template.get("name").asText());
                 templatesStringBuilder2.append("\n");
