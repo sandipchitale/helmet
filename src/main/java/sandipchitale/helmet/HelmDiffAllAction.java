@@ -227,58 +227,85 @@ public class HelmDiffAllAction extends AnAction {
             fileEditorManager.createSplitter(JSplitPane.VERTICAL_SPLIT, currentWindow);
 
             DiffManager diffManager = DiffManager.getInstance();
+            DiffContentFactory diffContentFactory = DiffContentFactory.getInstance();
 
             // Chart Info diff
-            DiffContent chartInfoContent1 = DiffContentFactory.getInstance().create(project,
+            DiffContent chartInfoContent1 = diffContentFactory.create(project,
                     String.format("Chart: %s\nStatus: %s\n",
                             jsonNode1.get("name").asText(),
                             jsonNode1.get("info").get("status").asText()));
-            DiffContent chartInfoContent2 = DiffContentFactory.getInstance().create(project, String.format("Chart: %s\nStatus: %s\n",
+            DiffContent chartInfoContent2 = diffContentFactory.create(project, String.format("Chart: %s\nStatus: %s\n",
                     jsonNode2.get("name").asText(),
                     jsonNode2.get("info").get("status").asText()));
             chartInfoContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
             chartInfoContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            SimpleDiffRequest chartInfoDiffRequest = new SimpleDiffRequest("Chart Info" + title1 + " vs " + "Chart Info" + title2, chartInfoContent1, chartInfoContent2, "Chart Info" + title1, "Chart Info" + title2);
+            SimpleDiffRequest chartInfoDiffRequest = new SimpleDiffRequest("Chart Info" + title1 + " vs " + "Chart Info" + title2,
+                    chartInfoContent1,
+                    chartInfoContent2,
+                    "Chart Info" + title1,
+                    "Chart Info" + title2);
             diffManager.showDiff(project, chartInfoDiffRequest);
 
             // Values diff
-            DiffContent valuesContent1 = DiffContentFactory.getInstance().create(project, objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode1.get("chart").get("values")));
-            DiffContent valuesContent2 = DiffContentFactory.getInstance().create(project, objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode2.get("chart").get("values")));
+            DiffContent valuesContent1 = diffContentFactory.create(project,
+                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode1.get("chart").get("values")));
+            DiffContent valuesContent2 = diffContentFactory.create(project,
+                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode2.get("chart").get("values")));
             valuesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
             valuesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            SimpleDiffRequest valuesDiffRequest = new SimpleDiffRequest("Values" + title1 + " vs " + "Values" + title2, valuesContent1, valuesContent2, "Values" + title1, "Values" + title2);
+            SimpleDiffRequest valuesDiffRequest = new SimpleDiffRequest("Values" + title1 + " vs " + "Values" + title2,
+                    valuesContent1,
+                    valuesContent2,
+                    "Values" + title1 + ".json",
+                    "Values" + title2 + ".json");
             diffManager.showDiff(project, valuesDiffRequest);
 
             // Templates diff
-            DiffContent templatesContent1 = DiffContentFactory.getInstance().create(project, templatesStringBuilder1.toString());
-            DiffContent templatesContent2 = DiffContentFactory.getInstance().create(project, templatesStringBuilder2.toString());
+            DiffContent templatesContent1 = diffContentFactory.create(project, templatesStringBuilder1.toString());
+            DiffContent templatesContent2 = diffContentFactory.create(project, templatesStringBuilder2.toString());
             templatesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
             templatesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            SimpleDiffRequest templatesDiffRequest = new SimpleDiffRequest("Templates" + title1 + " vs " + "Templates" + title2, templatesContent1, templatesContent2, "Templates" + title1, "Templates" + title2);
+            SimpleDiffRequest templatesDiffRequest = new SimpleDiffRequest("Templates" + title1 + " vs " + "Templates" + title2,
+                    templatesContent1,
+                    templatesContent2,
+                    "Templates" + title1 + ".yaml",
+                    "Templates" + title2 + ".yaml");
             diffManager.showDiff(project, templatesDiffRequest);
 
             // Manifests diff
-            DiffContent manifestsContent1 = DiffContentFactory.getInstance().create(project, jsonNode1.get("manifest").asText().replace("\\n", "\n"));
-            DiffContent manifestsContent2 = DiffContentFactory.getInstance().create(project, jsonNode2.get("manifest").asText().replace("\\n", "\n"));
+            DiffContent manifestsContent1 = diffContentFactory.create(project, jsonNode1.get("manifest").asText().replace("\\n", "\n"));
+            DiffContent manifestsContent2 = diffContentFactory.create(project, jsonNode2.get("manifest").asText().replace("\\n", "\n"));
             manifestsContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
             manifestsContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            SimpleDiffRequest manifestsDiffsRequest = new SimpleDiffRequest("Manifests" + title1 + " vs " + "Manifests" + title2, manifestsContent1, manifestsContent2, "Manifests" + title1, "Manifests" + title2);
+            SimpleDiffRequest manifestsDiffsRequest = new SimpleDiffRequest("Manifests" + title1 + " vs " + "Manifests" + title2,
+                    manifestsContent1,
+                    manifestsContent2,
+                    "Manifests" + title1 + ".yaml",
+                    "Manifests" + title2 + ".yaml");
             diffManager.showDiff(project, manifestsDiffsRequest);
 
             // Hooks diffs
-            DiffContent hooksContent1 = DiffContentFactory.getInstance().create(project, hooksStringBuilder1.toString());
-            DiffContent hooksContent2 = DiffContentFactory.getInstance().create(project, hooksStringBuilder2.toString());
+            DiffContent hooksContent1 = diffContentFactory.create(project, hooksStringBuilder1.toString());
+            DiffContent hooksContent2 = diffContentFactory.create(project, hooksStringBuilder2.toString());
             hooksContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
             hooksContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            SimpleDiffRequest hooksDiffRequest = new SimpleDiffRequest("Hooks" + title1 + " vs " + "Hooks" + title2, hooksContent1, hooksContent2, "Hooks" + title1, "Hooks" + title2);
+            SimpleDiffRequest hooksDiffRequest = new SimpleDiffRequest("Hooks" + title1 + " vs " + "Hooks" + title2,
+                    hooksContent1,
+                    hooksContent2,
+                    "Hooks" + title1 + ".yaml",
+                    "Hooks" + title2 + ".yaml");
             diffManager.showDiff(project, hooksDiffRequest);
 
             // Notes diffs
-            DiffContent notesContent1 = DiffContentFactory.getInstance().create(project, jsonNode1.get("info").get("notes").asText().replace("\\n", "\n"));
-            DiffContent notesContent2 = DiffContentFactory.getInstance().create(project, jsonNode2.get("info").get("notes").asText().replace("\\n", "\n"));
+            DiffContent notesContent1 = diffContentFactory.create(project, jsonNode1.get("info").get("notes").asText().replace("\\n", "\n"));
+            DiffContent notesContent2 = diffContentFactory.create(project, jsonNode2.get("info").get("notes").asText().replace("\\n", "\n"));
             notesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
             notesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            SimpleDiffRequest notesDiffRequest = new SimpleDiffRequest("Notes" + title1 + " vs " + "Notes" + title2, notesContent1, notesContent2, "Notes" + title1, "Notes" + title2);
+            SimpleDiffRequest notesDiffRequest = new SimpleDiffRequest("Notes" + title1 + " vs " + "Notes" + title2,
+                    notesContent1,
+                    notesContent2,
+                    "Notes" + title1,
+                    "Notes" + title2);
             diffManager.showDiff(project, notesDiffRequest);
 
             fileEditorManager.closeFile(sacrificeVirtualFile);
