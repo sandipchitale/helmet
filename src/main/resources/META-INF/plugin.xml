@@ -16,6 +16,9 @@
     <description><![CDATA[
 <h3>How it works?</h3>
 
+NOTE: This plugin requires that you have your KUBECONFIG file configured correctly to connect to your Kubernetes
+cluster, and your can access the Helm secrets for your Helm releases.
+
 This plugin provides actions related to Helm e.g. Tools > Helm > Get All and Tools > Helm > Diff All.
 
 It loads the Helm Secrets from all namespaces and prompts the user for selection. It decodes the Secret to
@@ -36,6 +39,7 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
 <ul>
     <li>Tools &gt; Helm &gt; Get... action</li>
     <li>Tools &gt; Helm &gt; Diff Release.Revision action</li>
+    <li>New icon</li>
 </ul>
 <h2>Known Issues</h2>
 <ul>

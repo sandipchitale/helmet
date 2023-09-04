@@ -56,7 +56,7 @@ public class HelmDiffAllAction extends AnAction {
     public HelmDiffAllAction() {
         this.kubernetesClient = new KubernetesClientBuilder().build();
 
-        DefaultListCellRenderer listCellrenderer = new DefaultListCellRenderer() {
+        DefaultListCellRenderer defaultListCellRenderer = new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -73,11 +73,11 @@ public class HelmDiffAllAction extends AnAction {
 
         JPanel splitPane = new JPanel(new GridLayout(1, 2, 5, 5));
 
-        namespaceSecretReleaseRevisionist1.setCellRenderer(listCellrenderer);
+        namespaceSecretReleaseRevisionist1.setCellRenderer(defaultListCellRenderer);
         namespaceSecretReleaseRevisionist1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         splitPane.add(new JScrollPane(namespaceSecretReleaseRevisionist1));
 
-        namespaceSecretReleaseRevisionist2.setCellRenderer(listCellrenderer);
+        namespaceSecretReleaseRevisionist2.setCellRenderer(defaultListCellRenderer);
         namespaceSecretReleaseRevisionist2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         splitPane.add(new JScrollPane(namespaceSecretReleaseRevisionist2));
 
