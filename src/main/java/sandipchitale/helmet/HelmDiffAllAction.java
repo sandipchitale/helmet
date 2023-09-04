@@ -38,13 +38,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 public class HelmDiffAllAction extends AnAction {
-
-    private final Pattern helmSecretNamePattern = Pattern.compile("^\\Qsh.helm.release.v1.\\E([^.]+)\\Q.v\\E(\\d+)");
-
     private final KubernetesClient kubernetesClient;
 
     private final WhatPanel whatPanel = WhatPanel.build();
@@ -52,32 +48,16 @@ public class HelmDiffAllAction extends AnAction {
     private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionist1 = new JBList<>();
     private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionist2 = new JBList<>();
 
-
     public HelmDiffAllAction() {
         this.kubernetesClient = new KubernetesClientBuilder().build();
 
-        DefaultListCellRenderer defaultListCellRenderer = new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (listCellRendererComponent instanceof JLabel listCellRendererComponentLabel) {
-                    NamespaceSecretReleaseRevision valueNamespaceSecretReleaseRevision4 = (NamespaceSecretReleaseRevision) value;
-                    listCellRendererComponentLabel.setText(
-                            String.format("%-64s [ %s ]",
-                                    valueNamespaceSecretReleaseRevision4.release() + "." + valueNamespaceSecretReleaseRevision4.revision(),
-                                    valueNamespaceSecretReleaseRevision4.namespace().getMetadata().getName()));
-                }
-                return listCellRendererComponent;
-            }
-        };
-
         JPanel splitPane = new JPanel(new GridLayout(1, 2, 5, 5));
 
-        namespaceSecretReleaseRevisionist1.setCellRenderer(defaultListCellRenderer);
+        namespaceSecretReleaseRevisionist1.setCellRenderer(ReleaseRevisionNamespaceDefaultListCellRenderer.INSTANCE);
         namespaceSecretReleaseRevisionist1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         splitPane.add(new JScrollPane(namespaceSecretReleaseRevisionist1));
 
-        namespaceSecretReleaseRevisionist2.setCellRenderer(defaultListCellRenderer);
+        namespaceSecretReleaseRevisionist2.setCellRenderer(ReleaseRevisionNamespaceDefaultListCellRenderer.INSTANCE);
         namespaceSecretReleaseRevisionist2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         splitPane.add(new JScrollPane(namespaceSecretReleaseRevisionist2));
 
@@ -99,11 +79,11 @@ public class HelmDiffAllAction extends AnAction {
                             .getItems()
                             .stream()
                             .filter(secret -> {
-                                Matcher matcher = helmSecretNamePattern.matcher(secret.getMetadata().getName());
+                                Matcher matcher = Constants.helmSecretNamePattern.matcher(secret.getMetadata().getName());
                                 return (matcher.matches());
                             })
                             .forEach(secret -> {
-                                Matcher matcher = helmSecretNamePattern.matcher(secret.getMetadata().getName());
+                                Matcher matcher = Constants.helmSecretNamePattern.matcher(secret.getMetadata().getName());
                                 if (matcher.matches()) {
                                     String release = matcher.group(1);
                                     String revision = matcher.group(2);
@@ -154,7 +134,7 @@ public class HelmDiffAllAction extends AnAction {
         FileEditorManagerEx fileEditorManager = (FileEditorManagerEx) FileEditorManager.getInstance(project);
 
         try {
-            String title1 = String.format(" ( %s.%s ) [ %s ]",
+            String title1 = String.format(Constants.RELEASE_REVISION_NAMESPACE_FORMAT,
                     namespaceSecretStringStringNamespaceSecretReleaseRevision1.release(),
                     namespaceSecretStringStringNamespaceSecretReleaseRevision1.revision(),
                     namespaceSecretStringStringNamespaceSecretReleaseRevision1.namespace().getMetadata().getName()
@@ -197,7 +177,7 @@ public class HelmDiffAllAction extends AnAction {
                 });
             }
 
-            String title2 = String.format(" ( %s.%s ) [ %s ]",
+            String title2 = String.format(Constants.RELEASE_REVISION_NAMESPACE_FORMAT,
                     namespaceSecretStringStringNamespaceSecretReleaseRevision2.release(),
                     namespaceSecretStringStringNamespaceSecretReleaseRevision2.revision(),
                     namespaceSecretStringStringNamespaceSecretReleaseRevision2.namespace().getMetadata().getName()
@@ -265,11 +245,11 @@ public class HelmDiffAllAction extends AnAction {
                         jsonNode2.get("info").get("status").asText()));
                 chartInfoContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
                 chartInfoContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-                SimpleDiffRequest chartInfoDiffRequest = new SimpleDiffRequest("Chart Info" + title1 + " vs " + "Chart Info" + title2,
+                SimpleDiffRequest chartInfoDiffRequest = new SimpleDiffRequest(Constants.CHART_INFO + title1 + " vs " + Constants.CHART_INFO + title2,
                         chartInfoContent1,
                         chartInfoContent2,
-                        "Chart Info" + title1,
-                        "Chart Info" + title2);
+                        Constants.CHART_INFO + title1,
+                        Constants.CHART_INFO + title2);
                 diffManager.showDiff(project, chartInfoDiffRequest);
             }
 
@@ -281,11 +261,11 @@ public class HelmDiffAllAction extends AnAction {
                         objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode2.get("chart").get("values")));
                 valuesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
                 valuesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-                SimpleDiffRequest valuesDiffRequest = new SimpleDiffRequest("Values" + title1 + " vs " + "Values" + title2,
+                SimpleDiffRequest valuesDiffRequest = new SimpleDiffRequest(Constants.VALUES + title1 + " vs " + Constants.VALUES + title2,
                         valuesContent1,
                         valuesContent2,
-                        "Values" + title1 + ".json",
-                        "Values" + title2 + ".json");
+                        Constants.VALUES + title1 + ".json",
+                        Constants.VALUES + title2 + ".json");
                 diffManager.showDiff(project, valuesDiffRequest);
             }
 
@@ -295,11 +275,11 @@ public class HelmDiffAllAction extends AnAction {
                 DiffContent templatesContent2 = diffContentFactory.create(project, templatesStringBuilder2.toString());
                 templatesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
                 templatesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-                SimpleDiffRequest templatesDiffRequest = new SimpleDiffRequest("Templates" + title1 + " vs " + "Templates" + title2,
+                SimpleDiffRequest templatesDiffRequest = new SimpleDiffRequest(Constants.TEMPLATES + title1 + " vs " + Constants.TEMPLATES + title2,
                         templatesContent1,
                         templatesContent2,
-                        "Templates" + title1 + ".yaml",
-                        "Templates" + title2 + ".yaml");
+                        Constants.TEMPLATES + title1 + ".yaml",
+                        Constants.TEMPLATES + title2 + ".yaml");
                 diffManager.showDiff(project, templatesDiffRequest);
             }
 
@@ -309,11 +289,11 @@ public class HelmDiffAllAction extends AnAction {
                 DiffContent manifestsContent2 = diffContentFactory.create(project, jsonNode2.get("manifest").asText().replace("\\n", "\n"));
                 manifestsContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
                 manifestsContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-                SimpleDiffRequest manifestsDiffsRequest = new SimpleDiffRequest("Manifests" + title1 + " vs " + "Manifests" + title2,
+                SimpleDiffRequest manifestsDiffsRequest = new SimpleDiffRequest(Constants.MANIFESTS + title1 + " vs " + Constants.MANIFESTS + title2,
                         manifestsContent1,
                         manifestsContent2,
-                        "Manifests" + title1 + ".yaml",
-                        "Manifests" + title2 + ".yaml");
+                        Constants.MANIFESTS + title1 + ".yaml",
+                        Constants.MANIFESTS + title2 + ".yaml");
                 diffManager.showDiff(project, manifestsDiffsRequest);
             }
 
@@ -323,11 +303,11 @@ public class HelmDiffAllAction extends AnAction {
                 DiffContent hooksContent2 = diffContentFactory.create(project, hooksStringBuilder2.toString());
                 hooksContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
                 hooksContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-                SimpleDiffRequest hooksDiffRequest = new SimpleDiffRequest("Hooks" + title1 + " vs " + "Hooks" + title2,
+                SimpleDiffRequest hooksDiffRequest = new SimpleDiffRequest(Constants.HOOKS + title1 + " vs " + Constants.HOOKS + title2,
                         hooksContent1,
                         hooksContent2,
-                        "Hooks" + title1 + ".yaml",
-                        "Hooks" + title2 + ".yaml");
+                        Constants.HOOKS + title1 + ".yaml",
+                        Constants.HOOKS + title2 + ".yaml");
                 diffManager.showDiff(project, hooksDiffRequest);
             }
 
@@ -337,11 +317,11 @@ public class HelmDiffAllAction extends AnAction {
                 DiffContent notesContent2 = diffContentFactory.create(project, jsonNode2.get("info").get("notes").asText().replace("\\n", "\n"));
                 notesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
                 notesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-                SimpleDiffRequest notesDiffRequest = new SimpleDiffRequest("Notes" + title1 + " vs " + "Notes" + title2,
+                SimpleDiffRequest notesDiffRequest = new SimpleDiffRequest(Constants.NOTES + title1 + " vs " + Constants.NOTES + title2,
                         notesContent1,
                         notesContent2,
-                        "Notes" + title1,
-                        "Notes" + title2);
+                        Constants.NOTES + title1,
+                        Constants.NOTES + title2);
                 diffManager.showDiff(project, notesDiffRequest);
             }
 
@@ -350,4 +330,5 @@ public class HelmDiffAllAction extends AnAction {
             throw new RuntimeException(e);
         }
     }
+
 }

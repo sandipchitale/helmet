@@ -37,8 +37,6 @@ import java.util.zip.GZIPInputStream;
 
 public class HelmGetAllAction extends AnAction {
 
-    private final Pattern helmSecretNamePattern = Pattern.compile("^\\Qsh.helm.release.v1.\\E([^.]+)\\Q.v\\E(\\d+)");
-
     private final KubernetesClient kubernetesClient;
 
     private final WhatPanel whatPanel = WhatPanel.build();
@@ -50,20 +48,7 @@ public class HelmGetAllAction extends AnAction {
         this.kubernetesClient = new KubernetesClientBuilder().build();
 
         namespaceSecretReleaseRevisionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        namespaceSecretReleaseRevisionList.setCellRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (listCellRendererComponent instanceof JLabel listCellRendererComponentLabel) {
-                    NamespaceSecretReleaseRevision valueNamespaceSecretReleaseRevision4 = (NamespaceSecretReleaseRevision) value;
-                    listCellRendererComponentLabel.setText(
-                            String.format("%-64s [ %s ]",
-                                    valueNamespaceSecretReleaseRevision4.release() + "." + valueNamespaceSecretReleaseRevision4.revision(),
-                                    valueNamespaceSecretReleaseRevision4.namespace().getMetadata().getName()));
-                }
-                return listCellRendererComponent;
-            }
-        });
+        namespaceSecretReleaseRevisionList.setCellRenderer(ReleaseRevisionNamespaceDefaultListCellRenderer.INSTANCE);
 
         whatPanel.add(new JScrollPane(namespaceSecretReleaseRevisionList), BorderLayout.CENTER);
     }
@@ -83,11 +68,11 @@ public class HelmGetAllAction extends AnAction {
                             .getItems()
                             .stream()
                             .filter(secret -> {
-                                Matcher matcher = helmSecretNamePattern.matcher(secret.getMetadata().getName());
+                                Matcher matcher = Constants.helmSecretNamePattern.matcher(secret.getMetadata().getName());
                                 return (matcher.matches());
                             })
                             .forEach(secret -> {
-                                Matcher matcher = helmSecretNamePattern.matcher(secret.getMetadata().getName());
+                                Matcher matcher = Constants.helmSecretNamePattern.matcher(secret.getMetadata().getName());
                                 if (matcher.matches()) {
                                     String release = matcher.group(1);
                                     String revision = matcher.group(2);
@@ -128,7 +113,7 @@ public class HelmGetAllAction extends AnAction {
     private static void showReleaseRevision(Project project,
                                             NamespaceSecretReleaseRevision namespaceSecretStringStringNamespaceSecretReleaseRevision,
                                             WhatPanel whatPanel) {
-        String title = String.format(" ( %s.%s ) [ %s ]",
+        String title = String.format(Constants.RELEASE_REVISION_NAMESPACE_FORMAT,
                 namespaceSecretStringStringNamespaceSecretReleaseRevision.release(),
                 namespaceSecretStringStringNamespaceSecretReleaseRevision.revision(),
                 namespaceSecretStringStringNamespaceSecretReleaseRevision.namespace().getMetadata().getName()
@@ -157,7 +142,7 @@ public class HelmGetAllAction extends AnAction {
 
             // Chart Info
             if (whatPanel.isChartInfo()) {
-                LightVirtualFile charInfoLightVirtualFile = new LightVirtualFile("Chart Info" + title,
+                LightVirtualFile charInfoLightVirtualFile = new LightVirtualFile(Constants.CHART_INFO + title,
                         PlainTextFileType.INSTANCE,
                         String.format("Chart: %s\nStatus: %s\n",
                         jsonNode.get("name").asText(),
@@ -175,7 +160,7 @@ public class HelmGetAllAction extends AnAction {
             // Values
             if (whatPanel.isValues()) {
                 JsonNode valuesNode = jsonNode.get("chart").get("values");
-                LightVirtualFile valuesLightVirtualFile = new LightVirtualFile("Values" + title,
+                LightVirtualFile valuesLightVirtualFile = new LightVirtualFile(Constants.VALUES + title,
                         PlainTextFileType.INSTANCE,
                         objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(valuesNode));
                 valuesLightVirtualFile.setWritable(false);
@@ -196,7 +181,7 @@ public class HelmGetAllAction extends AnAction {
                     templatesStringBuilder.append("\n");
                     templatesStringBuilder.append("----\n");
                 });
-                LightVirtualFile templatesvaluesLightVirtualFile = new LightVirtualFile("Templates" + title,
+                LightVirtualFile templatesvaluesLightVirtualFile = new LightVirtualFile(Constants.TEMPLATES + title,
                         PlainTextFileType.INSTANCE,
                         templatesStringBuilder.toString());
                 templatesvaluesLightVirtualFile.setWritable(false);
@@ -207,7 +192,7 @@ public class HelmGetAllAction extends AnAction {
 
             // Manifest
             if (whatPanel.isManifests()) {
-                LightVirtualFile manifestLightVirtualFile = new LightVirtualFile("Manifest" + title,
+                LightVirtualFile manifestLightVirtualFile = new LightVirtualFile(Constants.MANIFESTS + title,
                         PlainTextFileType.INSTANCE,
                         jsonNode.get("manifest").asText().replace("\\n", "\n"));
                 manifestLightVirtualFile.setWritable(false);
@@ -226,7 +211,7 @@ public class HelmGetAllAction extends AnAction {
                     hooksStringBuilder.append("----\n");
                 });
 
-                LightVirtualFile hooksLightVirtualFile = new LightVirtualFile("Hooks" + title,
+                LightVirtualFile hooksLightVirtualFile = new LightVirtualFile(Constants.HOOKS + title,
                         PlainTextFileType.INSTANCE,
                         hooksStringBuilder.toString());
                 hooksLightVirtualFile.setWritable(false);
@@ -237,7 +222,7 @@ public class HelmGetAllAction extends AnAction {
 
             // Notes
             if (whatPanel.isNotes()) {
-                LightVirtualFile notesvaluesLightVirtualFile = new LightVirtualFile("Notes" + title,
+                LightVirtualFile notesvaluesLightVirtualFile = new LightVirtualFile(Constants.NOTES + title,
                         PlainTextFileType.INSTANCE,
                         jsonNode.get("info").get("notes").asText().replace("\\n", "\n"));
                 notesvaluesLightVirtualFile.setWritable(false);

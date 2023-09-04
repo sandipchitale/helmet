@@ -30,13 +30,13 @@ public class WhatPanel extends BorderLayoutPanel {
 
         whatPanel.add(whatCheckBoxesPanel, BorderLayout.EAST);
 
-        whatPanel.allCheckBox = new JCheckBox("All", true);
-        whatPanel.chartInfoCheckBox = new JCheckBox("Chart Info", true);
-        whatPanel.valuesCheckBox = new JCheckBox("Values", true);
-        whatPanel.templatesCheckBox = new JCheckBox("Templates", true);
-        whatPanel.manifestsCheckBox = new JCheckBox("Manifests", true);
-        whatPanel.hooksCheckBox = new JCheckBox("Hooks", true);
-        whatPanel.notesCheckBox = new JCheckBox("Notes", true);
+        whatPanel.allCheckBox = new JCheckBox(Constants.ALL, true);
+        whatPanel.chartInfoCheckBox = new JCheckBox(Constants.CHART_INFO, true);
+        whatPanel.valuesCheckBox = new JCheckBox(Constants.VALUES, true);
+        whatPanel.templatesCheckBox = new JCheckBox(Constants.TEMPLATES, true);
+        whatPanel.manifestsCheckBox = new JCheckBox(Constants.MANIFESTS, true);
+        whatPanel.hooksCheckBox = new JCheckBox(Constants.HOOKS, true);
+        whatPanel.notesCheckBox = new JCheckBox(Constants.NOTES, true);
 
         whatPanel.chartInfoCheckBox.setBorder(LEFT_BORDER);
         whatPanel.valuesCheckBox.setBorder(LEFT_BORDER);
