@@ -3,10 +3,13 @@ package sandipchitale.helmet;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class WhatPanel extends BorderLayoutPanel {
+
+    private static final Border LEFT_BORDER = BorderFactory.createEmptyBorder(0, 20, 0 , 0);
 
     private JCheckBox allCheckBox;
     private JCheckBox chartInfoCheckBox;
@@ -34,6 +37,13 @@ public class WhatPanel extends BorderLayoutPanel {
         whatPanel.manifestsCheckBox = new JCheckBox("Manifests", true);
         whatPanel.hooksCheckBox = new JCheckBox("Hooks", true);
         whatPanel.notesCheckBox = new JCheckBox("Notes", true);
+
+        whatPanel.chartInfoCheckBox.setBorder(LEFT_BORDER);
+        whatPanel.valuesCheckBox.setBorder(LEFT_BORDER);
+        whatPanel.templatesCheckBox.setBorder(LEFT_BORDER);
+        whatPanel.manifestsCheckBox.setBorder(LEFT_BORDER);
+        whatPanel.hooksCheckBox.setBorder(LEFT_BORDER);
+        whatPanel.notesCheckBox.setBorder(LEFT_BORDER);
 
         whatCheckBoxesPanel.add(whatPanel.allCheckBox);
         whatPanel.add(new JSeparator());
