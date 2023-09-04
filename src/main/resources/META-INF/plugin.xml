@@ -14,15 +14,17 @@
         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-This plugin provides actions related to Helm e.g. Tools > Helm > Get All and Tools > Helm > Diff All.
+<h3>How it works?</h3>
 
-How it works?
+This plugin provides actions related to Helm e.g. Tools > Helm > Get All and Tools > Helm > Diff All.
 
 It loads the Helm Secrets from all namespaces and prompts the user for selection. It decodes the Secret to
 extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selected Helm Release and Revision.
 
-- Get All - shows the decoded information for the selected Helm Release Revision
-- Diff All - diffs the decoded information between the selected Helm Release Revisions
+<ul>
+<li>Get All - shows the decoded information for the selected Helm Release Revision</li>
+<li>Diff All - diffs the decoded information between the selected Helm Release Revisions</li>
+</ul>
     ]]></description>
 
     <!-- Product and plugin compatibility requirements.
@@ -31,11 +33,11 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
 
     <change-notes><![CDATA[
 <h2>New Features</h2>
+<ul>
     <li>Tools &gt; Helm &gt; Get All action</li>
     <li>Tools &gt; Helm &gt; Diff All action</li>
-<ul>
 </ul>
-<h2>Bug Fixes</h2>
+<h2>Known Issues</h2>
 <ul>
     <li>When running Get Diff command an extraneous, blank split editor pair is shown. Just close it.</li>
 </ul>
