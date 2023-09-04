@@ -49,8 +49,8 @@ public class HelmDiffAllAction extends AnAction {
 
     private final WhatPanel whatPanel = WhatPanel.build();
 
-    private final JBList<Tuple> namespaceSecretReleaseRevisionist1 = new JBList<>();
-    private final JBList<Tuple> namespaceSecretReleaseRevisionist2 = new JBList<>();
+    private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionist1 = new JBList<>();
+    private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionist2 = new JBList<>();
 
 
     public HelmDiffAllAction() {
@@ -61,11 +61,11 @@ public class HelmDiffAllAction extends AnAction {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (listCellRendererComponent instanceof JLabel listCellRendererComponentLabel) {
-                    Tuple valueTuple4 = (Tuple) value;
+                    NamespaceSecretReleaseRevision valueNamespaceSecretReleaseRevision4 = (NamespaceSecretReleaseRevision) value;
                     listCellRendererComponentLabel.setText(
                             String.format("%-64s [ %s ]",
-                                    valueTuple4.release() + "." + valueTuple4.revision(),
-                                    valueTuple4.namespace().getMetadata().getName()));
+                                    valueNamespaceSecretReleaseRevision4.release() + "." + valueNamespaceSecretReleaseRevision4.revision(),
+                                    valueNamespaceSecretReleaseRevision4.namespace().getMetadata().getName()));
                 }
                 return listCellRendererComponent;
             }
@@ -86,7 +86,7 @@ public class HelmDiffAllAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        List<Tuple> namespaceStringStringTupleSet = new ArrayList<>();
+        List<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet = new ArrayList<>();
         kubernetesClient
                 .namespaces()
                 .list()
@@ -107,13 +107,13 @@ public class HelmDiffAllAction extends AnAction {
                                 if (matcher.matches()) {
                                     String release = matcher.group(1);
                                     String revision = matcher.group(2);
-                                    namespaceStringStringTupleSet.add(new Tuple(namespace, secret, release, revision));
+                                    namespaceStringStringNamespaceSecretReleaseRevisionSet.add(new NamespaceSecretReleaseRevision(namespace, secret, release, revision));
                                 }
                             });
                 });
 
-        namespaceSecretReleaseRevisionist1.setListData(namespaceStringStringTupleSet.toArray(new Tuple[0]));
-        namespaceSecretReleaseRevisionist2.setListData(namespaceStringStringTupleSet.toArray(new Tuple[0]));
+        namespaceSecretReleaseRevisionist1.setListData(namespaceStringStringNamespaceSecretReleaseRevisionSet.toArray(new NamespaceSecretReleaseRevision[0]));
+        namespaceSecretReleaseRevisionist2.setListData(namespaceStringStringNamespaceSecretReleaseRevisionSet.toArray(new NamespaceSecretReleaseRevision[0]));
 
         DialogBuilder builder = new DialogBuilder(e.getProject());
 
@@ -135,8 +135,8 @@ public class HelmDiffAllAction extends AnAction {
         boolean isOk = builder.show() == DialogWrapper.OK_EXIT_CODE;
         if (isOk) {
             if (whatPanel.isAny()) {
-                Tuple selectedValue1 = namespaceSecretReleaseRevisionist1.getSelectedValue();
-                Tuple selectedValue2 = namespaceSecretReleaseRevisionist2.getSelectedValue();
+                NamespaceSecretReleaseRevision selectedValue1 = namespaceSecretReleaseRevisionist1.getSelectedValue();
+                NamespaceSecretReleaseRevision selectedValue2 = namespaceSecretReleaseRevisionist2.getSelectedValue();
                 if (selectedValue1 != null && selectedValue2 != null) {
                     showReleaseRevisionDiff(e.getProject(), selectedValue1, selectedValue2, whatPanel);
                 }
@@ -147,20 +147,20 @@ public class HelmDiffAllAction extends AnAction {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static void showReleaseRevisionDiff(Project project,
-                                                Tuple namespaceSecretStringStringTuple1,
-                                                Tuple namespaceSecretStringStringTuple2,
+                                                NamespaceSecretReleaseRevision namespaceSecretStringStringNamespaceSecretReleaseRevision1,
+                                                NamespaceSecretReleaseRevision namespaceSecretStringStringNamespaceSecretReleaseRevision2,
                                                 WhatPanel whatPanel) {
 
         FileEditorManagerEx fileEditorManager = (FileEditorManagerEx) FileEditorManager.getInstance(project);
 
         try {
             String title1 = String.format(" ( %s.%s ) [ %s ]",
-                    namespaceSecretStringStringTuple1.release(),
-                    namespaceSecretStringStringTuple1.revision(),
-                    namespaceSecretStringStringTuple1.namespace().getMetadata().getName()
+                    namespaceSecretStringStringNamespaceSecretReleaseRevision1.release(),
+                    namespaceSecretStringStringNamespaceSecretReleaseRevision1.revision(),
+                    namespaceSecretStringStringNamespaceSecretReleaseRevision1.namespace().getMetadata().getName()
             );
 
-            Secret secret1 = namespaceSecretStringStringTuple1.secret();
+            Secret secret1 = namespaceSecretStringStringNamespaceSecretReleaseRevision1.secret();
             String release1 = secret1.getData().get("release");
             byte[] decodedRelease1 = Base64Coder.decode(release1);
 
@@ -198,12 +198,12 @@ public class HelmDiffAllAction extends AnAction {
             }
 
             String title2 = String.format(" ( %s.%s ) [ %s ]",
-                    namespaceSecretStringStringTuple2.release(),
-                    namespaceSecretStringStringTuple2.revision(),
-                    namespaceSecretStringStringTuple2.namespace().getMetadata().getName()
+                    namespaceSecretStringStringNamespaceSecretReleaseRevision2.release(),
+                    namespaceSecretStringStringNamespaceSecretReleaseRevision2.revision(),
+                    namespaceSecretStringStringNamespaceSecretReleaseRevision2.namespace().getMetadata().getName()
             );
 
-            Secret secret2 = namespaceSecretStringStringTuple2.secret();
+            Secret secret2 = namespaceSecretStringStringNamespaceSecretReleaseRevision2.secret();
             String release2 = secret2.getData().get("release");
             byte[] decodedRelease2 = Base64Coder.decode(release2);
 

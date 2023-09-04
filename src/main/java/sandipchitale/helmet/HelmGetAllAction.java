@@ -43,7 +43,7 @@ public class HelmGetAllAction extends AnAction {
 
     private final WhatPanel whatPanel = WhatPanel.build();
 
-    private final JBList<Tuple> namespaceSecretReleaseRevisionList = new JBList<>();
+    private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionList = new JBList<>();
 
 
     public HelmGetAllAction() {
@@ -55,11 +55,11 @@ public class HelmGetAllAction extends AnAction {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (listCellRendererComponent instanceof JLabel listCellRendererComponentLabel) {
-                    Tuple valueTuple4 = (Tuple) value;
+                    NamespaceSecretReleaseRevision valueNamespaceSecretReleaseRevision4 = (NamespaceSecretReleaseRevision) value;
                     listCellRendererComponentLabel.setText(
                             String.format("%-64s [ %s ]",
-                                    valueTuple4.release() + "." + valueTuple4.revision(),
-                                    valueTuple4.namespace().getMetadata().getName()));
+                                    valueNamespaceSecretReleaseRevision4.release() + "." + valueNamespaceSecretReleaseRevision4.revision(),
+                                    valueNamespaceSecretReleaseRevision4.namespace().getMetadata().getName()));
                 }
                 return listCellRendererComponent;
             }
@@ -70,7 +70,7 @@ public class HelmGetAllAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        List<Tuple> namespaceStringStringTuple4Set = new ArrayList<>();
+        List<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevision4Set = new ArrayList<>();
         kubernetesClient
                 .namespaces()
                 .list()
@@ -91,12 +91,12 @@ public class HelmGetAllAction extends AnAction {
                                 if (matcher.matches()) {
                                     String release = matcher.group(1);
                                     String revision = matcher.group(2);
-                                    namespaceStringStringTuple4Set.add(new Tuple(namespace, secret, release, revision));
+                                    namespaceStringStringNamespaceSecretReleaseRevision4Set.add(new NamespaceSecretReleaseRevision(namespace, secret, release, revision));
                                 }
                             });
                 });
 
-        namespaceSecretReleaseRevisionList.setModel(JBList.createDefaultListModel(namespaceStringStringTuple4Set));
+        namespaceSecretReleaseRevisionList.setModel(JBList.createDefaultListModel(namespaceStringStringNamespaceSecretReleaseRevision4Set));
 
         DialogBuilder builder = new DialogBuilder(e.getProject());
         builder.setCenterPanel(whatPanel);
@@ -114,7 +114,7 @@ public class HelmGetAllAction extends AnAction {
         boolean isOk = builder.show() == DialogWrapper.OK_EXIT_CODE;
         if (isOk) {
             if (whatPanel.isAny()) {
-                Tuple selectedValue = namespaceSecretReleaseRevisionList.getSelectedValue();
+                NamespaceSecretReleaseRevision selectedValue = namespaceSecretReleaseRevisionList.getSelectedValue();
                 if (selectedValue != null) {
                     showReleaseRevision(e.getProject(), selectedValue, whatPanel);
                 }
@@ -126,12 +126,12 @@ public class HelmGetAllAction extends AnAction {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static void showReleaseRevision(Project project,
-                                            Tuple namespaceSecretStringStringTuple,
+                                            NamespaceSecretReleaseRevision namespaceSecretStringStringNamespaceSecretReleaseRevision,
                                             WhatPanel whatPanel) {
         String title = String.format(" ( %s.%s ) [ %s ]",
-                namespaceSecretStringStringTuple.release(),
-                namespaceSecretStringStringTuple.revision(),
-                namespaceSecretStringStringTuple.namespace().getMetadata().getName()
+                namespaceSecretStringStringNamespaceSecretReleaseRevision.release(),
+                namespaceSecretStringStringNamespaceSecretReleaseRevision.revision(),
+                namespaceSecretStringStringNamespaceSecretReleaseRevision.namespace().getMetadata().getName()
         );
 
         FileEditorManagerEx fileEditorManager = (FileEditorManagerEx) FileEditorManager.getInstance(project);
@@ -142,7 +142,7 @@ public class HelmGetAllAction extends AnAction {
             currentWindow = fileEditorManager.getCurrentWindow();
         }
 
-        Secret secret = namespaceSecretStringStringTuple.secret();
+        Secret secret = namespaceSecretStringStringNamespaceSecretReleaseRevision.secret();
         String release = secret.getData().get("release");
         byte[] decodedRelease = Base64Coder.decode(release);
 
