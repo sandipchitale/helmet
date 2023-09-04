@@ -34,8 +34,8 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
     <change-notes><![CDATA[
 <h2>New Features</h2>
 <ul>
-    <li>Tools &gt; Helm &gt; Get All action</li>
-    <li>Tools &gt; Helm &gt; Diff All action</li>
+    <li>Tools &gt; Helm &gt; Get... action</li>
+    <li>Tools &gt; Helm &gt; Diff Release.Revision action</li>
 </ul>
 <h2>Known Issues</h2>
 <ul>
@@ -62,7 +62,7 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
             <action id="sandipchitale.helmet.HelmDiffAllAction"
                     class="sandipchitale.helmet.HelmDiffAllAction"
                     icon="AllIcons.Actions.Diff"
-                    text="Diff Release:Revisions..."
+                    text="Diff Release.Revisions..."
                     description="Diff chart info, values, templates, manifests, hooks, notes of two Helm release.revisions">
             </action>
         </group>
