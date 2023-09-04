@@ -20,8 +20,6 @@ import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.components.JBList;
-import com.intellij.util.ui.components.BorderLayoutPanel;
-import groovy.lang.Tuple4;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -31,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -48,13 +47,46 @@ public class HelmDiffAllAction extends AnAction {
 
     private final KubernetesClient kubernetesClient;
 
+    private final WhatPanel whatPanel = WhatPanel.build();
+
+    private final JBList<Tuple> namespaceSecretReleaseRevisionist1 = new JBList<>();
+    private final JBList<Tuple> namespaceSecretReleaseRevisionist2 = new JBList<>();
+
+
     public HelmDiffAllAction() {
         this.kubernetesClient = new KubernetesClientBuilder().build();
+
+        DefaultListCellRenderer listCellrenderer = new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (listCellRendererComponent instanceof JLabel listCellRendererComponentLabel) {
+                    Tuple valueTuple4 = (Tuple) value;
+                    listCellRendererComponentLabel.setText(
+                            String.format("%-64s [ %s ]",
+                                    valueTuple4.release() + "." + valueTuple4.revision(),
+                                    valueTuple4.namespace().getMetadata().getName()));
+                }
+                return listCellRendererComponent;
+            }
+        };
+
+        JPanel splitPane = new JPanel(new GridLayout(1, 2, 5, 5));
+
+        namespaceSecretReleaseRevisionist1.setCellRenderer(listCellrenderer);
+        namespaceSecretReleaseRevisionist1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        splitPane.add(new JScrollPane(namespaceSecretReleaseRevisionist1));
+
+        namespaceSecretReleaseRevisionist2.setCellRenderer(listCellrenderer);
+        namespaceSecretReleaseRevisionist2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        splitPane.add(new JScrollPane(namespaceSecretReleaseRevisionist2));
+
+        whatPanel.add(splitPane, BorderLayout.CENTER);
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        List<Tuple4<Namespace, Secret, String, String>> namespaceStringStringTuple4Set = new ArrayList<>();
+        List<Tuple> namespaceStringStringTupleSet = new ArrayList<>();
         kubernetesClient
                 .namespaces()
                 .list()
@@ -75,55 +107,39 @@ public class HelmDiffAllAction extends AnAction {
                                 if (matcher.matches()) {
                                     String release = matcher.group(1);
                                     String revision = matcher.group(2);
-                                    namespaceStringStringTuple4Set.add(new Tuple4<>(namespace, secret, release, revision));
+                                    namespaceStringStringTupleSet.add(new Tuple(namespace, secret, release, revision));
                                 }
                             });
                 });
 
-        BorderLayoutPanel panel = new BorderLayoutPanel();
-
-        DefaultListCellRenderer listCellrenderer = new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (listCellRendererComponent instanceof JLabel listCellRendererComponentLabel) {
-                    Tuple4<Namespace, Secret, String, String> valueTuple4 = (Tuple4<Namespace, Secret, String, String>) value;
-                    listCellRendererComponentLabel.setText(
-                            String.format("%-64s [ %s ]",
-                                    valueTuple4.getV3() + "." + valueTuple4.getV4(),
-                                    valueTuple4.getV1().getMetadata().getName()));
-                }
-                return listCellRendererComponent;
-            }
-        };
-
-        JPanel splitPane = new JPanel(new GridLayout(1, 2, 5, 5));
-
-        JBList<Tuple4<Namespace, Secret, String, String>> namespaceSecretReleaseRevisionist1 = new JBList<>(namespaceStringStringTuple4Set.toArray(new Tuple4[0]));
-        namespaceSecretReleaseRevisionist1.setCellRenderer(listCellrenderer);
-        namespaceSecretReleaseRevisionist1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        splitPane.add(new JScrollPane(namespaceSecretReleaseRevisionist1));
-
-        JBList<Tuple4<Namespace, Secret, String, String>> namespaceSecretReleaseRevisionist2 = new JBList<>(namespaceStringStringTuple4Set.toArray(new Tuple4[0]));
-        namespaceSecretReleaseRevisionist2.setCellRenderer(listCellrenderer);
-        namespaceSecretReleaseRevisionist2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        splitPane.add(new JScrollPane(namespaceSecretReleaseRevisionist2));
-
-        panel.add(splitPane, BorderLayout.CENTER);
+        namespaceSecretReleaseRevisionist1.setListData(namespaceStringStringTupleSet.toArray(new Tuple[0]));
+        namespaceSecretReleaseRevisionist2.setListData(namespaceStringStringTupleSet.toArray(new Tuple[0]));
 
         DialogBuilder builder = new DialogBuilder(e.getProject());
-        builder.setCenterPanel(panel);
+
+        builder.setCenterPanel(whatPanel);
         builder.setDimensionServiceKey("SelectNamespaceHelmReleaseRevisionForDiff");
         builder.setTitle("Select Helm Release.Revisions [ Namespaces ] for Diff");
         builder.removeAllActions();
         builder.addOkAction();
         builder.addCancelAction();
+
+        builder.setOkActionEnabled(false);
+        ListSelectionListener adjustOkActionState = e1 -> {
+            builder.setOkActionEnabled(namespaceSecretReleaseRevisionist1.getSelectedValue() != null
+                    && namespaceSecretReleaseRevisionist2.getSelectedValue() != null);
+        };
+        namespaceSecretReleaseRevisionist1.addListSelectionListener(adjustOkActionState);
+        namespaceSecretReleaseRevisionist2.addListSelectionListener(adjustOkActionState);
+
         boolean isOk = builder.show() == DialogWrapper.OK_EXIT_CODE;
         if (isOk) {
-            Tuple4<Namespace, Secret, String, String> selectedValue1 = namespaceSecretReleaseRevisionist1.getSelectedValue();
-            Tuple4<Namespace, Secret, String, String> selectedValue2 = namespaceSecretReleaseRevisionist2.getSelectedValue();
-            if (selectedValue1 != null && selectedValue2 != null) {
-                showReleaseRevisionDiff(e.getProject(), selectedValue1, selectedValue2);
+            if (whatPanel.isAny()) {
+                Tuple selectedValue1 = namespaceSecretReleaseRevisionist1.getSelectedValue();
+                Tuple selectedValue2 = namespaceSecretReleaseRevisionist2.getSelectedValue();
+                if (selectedValue1 != null && selectedValue2 != null) {
+                    showReleaseRevisionDiff(e.getProject(), selectedValue1, selectedValue2, whatPanel);
+                }
             }
         }
     }
@@ -131,19 +147,20 @@ public class HelmDiffAllAction extends AnAction {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static void showReleaseRevisionDiff(Project project,
-                                                Tuple4<Namespace, Secret, String, String> namespaceSecretStringStringTuple41,
-                                                Tuple4<Namespace, Secret, String, String> namespaceSecretStringStringTuple42) {
+                                                Tuple namespaceSecretStringStringTuple1,
+                                                Tuple namespaceSecretStringStringTuple2,
+                                                WhatPanel whatPanel) {
 
         FileEditorManagerEx fileEditorManager = (FileEditorManagerEx) FileEditorManager.getInstance(project);
 
         try {
             String title1 = String.format(" ( %s.%s ) [ %s ]",
-                    namespaceSecretStringStringTuple41.getV3(),
-                    namespaceSecretStringStringTuple41.getV4(),
-                    namespaceSecretStringStringTuple41.getV1().getMetadata().getName()
+                    namespaceSecretStringStringTuple1.release(),
+                    namespaceSecretStringStringTuple1.revision(),
+                    namespaceSecretStringStringTuple1.namespace().getMetadata().getName()
             );
 
-            Secret secret1 = namespaceSecretStringStringTuple41.getV2();
+            Secret secret1 = namespaceSecretStringStringTuple1.secret();
             String release1 = secret1.getData().get("release");
             byte[] decodedRelease1 = Base64Coder.decode(release1);
 
@@ -157,32 +174,36 @@ public class HelmDiffAllAction extends AnAction {
 
             // Templates
             StringBuilder templatesStringBuilder1 = new StringBuilder();
-            ArrayNode templates1 = (ArrayNode) jsonNode1.get("chart").get("templates");
-            templates1.forEach(template -> {
-                templatesStringBuilder1.append("Template: ");
-                templatesStringBuilder1.append(template.get("name").asText());
-                templatesStringBuilder1.append("\n");
-                templatesStringBuilder1.append(new String(Base64Coder.decode(template.get("data").asText()), StandardCharsets.UTF_8));
-                templatesStringBuilder1.append("\n");
-                templatesStringBuilder1.append("----\n");
-            });
+            if (whatPanel.isTemplates()) {
+                ArrayNode templates1 = (ArrayNode) jsonNode1.get("chart").get("templates");
+                templates1.forEach(template -> {
+                    templatesStringBuilder1.append("Template: ");
+                    templatesStringBuilder1.append(template.get("name").asText());
+                    templatesStringBuilder1.append("\n");
+                    templatesStringBuilder1.append(new String(Base64Coder.decode(template.get("data").asText()), StandardCharsets.UTF_8));
+                    templatesStringBuilder1.append("\n");
+                    templatesStringBuilder1.append("----\n");
+                });
+            }
 
             // Hooks
             StringBuilder hooksStringBuilder1 = new StringBuilder();
-            ArrayNode hooks1 = (ArrayNode) jsonNode1.get("hooks");
-            hooks1.forEach(hook -> {
-                hooksStringBuilder1.append(String.format("Hook: %s Events: %s\n", hook.get("path").asText(), hook.get("events")));
-                hooksStringBuilder1.append(hook.get("manifest").asText().replace("\\n", "\n"));
-                hooksStringBuilder1.append("----\n");
-            });
+            if (whatPanel.isHooks()) {
+                ArrayNode hooks1 = (ArrayNode) jsonNode1.get("hooks");
+                hooks1.forEach(hook -> {
+                    hooksStringBuilder1.append(String.format("Hook: %s Events: %s\n", hook.get("path").asText(), hook.get("events")));
+                    hooksStringBuilder1.append(hook.get("manifest").asText().replace("\\n", "\n"));
+                    hooksStringBuilder1.append("----\n");
+                });
+            }
 
             String title2 = String.format(" ( %s.%s ) [ %s ]",
-                    namespaceSecretStringStringTuple42.getV3(),
-                    namespaceSecretStringStringTuple42.getV4(),
-                    namespaceSecretStringStringTuple42.getV1().getMetadata().getName()
+                    namespaceSecretStringStringTuple2.release(),
+                    namespaceSecretStringStringTuple2.revision(),
+                    namespaceSecretStringStringTuple2.namespace().getMetadata().getName()
             );
 
-            Secret secret2 = namespaceSecretStringStringTuple42.getV2();
+            Secret secret2 = namespaceSecretStringStringTuple2.secret();
             String release2 = secret2.getData().get("release");
             byte[] decodedRelease2 = Base64Coder.decode(release2);
 
@@ -196,24 +217,28 @@ public class HelmDiffAllAction extends AnAction {
 
             // Templates
             StringBuilder templatesStringBuilder2 = new StringBuilder();
-            ArrayNode templates2 = (ArrayNode) jsonNode2.get("chart").get("templates");
-            templates2.forEach(template -> {
-                templatesStringBuilder2.append("Template: ");
-                templatesStringBuilder2.append(template.get("name").asText());
-                templatesStringBuilder2.append("\n");
-                templatesStringBuilder2.append(new String(Base64Coder.decode(template.get("data").asText()), StandardCharsets.UTF_8));
-                templatesStringBuilder2.append("\n");
-                templatesStringBuilder2.append("----\n");
-            });
+            if (whatPanel.isTemplates()) {
+                ArrayNode templates2 = (ArrayNode) jsonNode2.get("chart").get("templates");
+                templates2.forEach(template -> {
+                    templatesStringBuilder2.append("Template: ");
+                    templatesStringBuilder2.append(template.get("name").asText());
+                    templatesStringBuilder2.append("\n");
+                    templatesStringBuilder2.append(new String(Base64Coder.decode(template.get("data").asText()), StandardCharsets.UTF_8));
+                    templatesStringBuilder2.append("\n");
+                    templatesStringBuilder2.append("----\n");
+                });
+            }
 
             // Hooks
             StringBuilder hooksStringBuilder2 = new StringBuilder();
-            ArrayNode hooks2 = (ArrayNode) jsonNode2.get("hooks");
-            hooks2.forEach(hook -> {
-                hooksStringBuilder2.append(String.format("Hook: %s Events: %s\n", hook.get("path").asText(), hook.get("events")));
-                hooksStringBuilder2.append(hook.get("manifest").asText().replace("\\n", "\n"));
-                hooksStringBuilder2.append("----\n");
-            });
+            if (whatPanel.isHooks()) {
+                ArrayNode hooks2 = (ArrayNode) jsonNode2.get("hooks");
+                hooks2.forEach(hook -> {
+                    hooksStringBuilder2.append(String.format("Hook: %s Events: %s\n", hook.get("path").asText(), hook.get("events")));
+                    hooksStringBuilder2.append(hook.get("manifest").asText().replace("\\n", "\n"));
+                    hooksStringBuilder2.append("----\n");
+                });
+            }
 
             // Sacrificial file
             LightVirtualFile sacrificeVirtualFile = new LightVirtualFile("_",
@@ -230,83 +255,95 @@ public class HelmDiffAllAction extends AnAction {
             DiffContentFactory diffContentFactory = DiffContentFactory.getInstance();
 
             // Chart Info diff
-            DiffContent chartInfoContent1 = diffContentFactory.create(project,
-                    String.format("Chart: %s\nStatus: %s\n",
-                            jsonNode1.get("name").asText(),
-                            jsonNode1.get("info").get("status").asText()));
-            DiffContent chartInfoContent2 = diffContentFactory.create(project, String.format("Chart: %s\nStatus: %s\n",
-                    jsonNode2.get("name").asText(),
-                    jsonNode2.get("info").get("status").asText()));
-            chartInfoContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            chartInfoContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            SimpleDiffRequest chartInfoDiffRequest = new SimpleDiffRequest("Chart Info" + title1 + " vs " + "Chart Info" + title2,
-                    chartInfoContent1,
-                    chartInfoContent2,
-                    "Chart Info" + title1,
-                    "Chart Info" + title2);
-            diffManager.showDiff(project, chartInfoDiffRequest);
+            if (whatPanel.isChartInfo()) {
+                DiffContent chartInfoContent1 = diffContentFactory.create(project,
+                        String.format("Chart: %s\nStatus: %s\n",
+                                jsonNode1.get("name").asText(),
+                                jsonNode1.get("info").get("status").asText()));
+                DiffContent chartInfoContent2 = diffContentFactory.create(project, String.format("Chart: %s\nStatus: %s\n",
+                        jsonNode2.get("name").asText(),
+                        jsonNode2.get("info").get("status").asText()));
+                chartInfoContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+                chartInfoContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+                SimpleDiffRequest chartInfoDiffRequest = new SimpleDiffRequest("Chart Info" + title1 + " vs " + "Chart Info" + title2,
+                        chartInfoContent1,
+                        chartInfoContent2,
+                        "Chart Info" + title1,
+                        "Chart Info" + title2);
+                diffManager.showDiff(project, chartInfoDiffRequest);
+            }
 
             // Values diff
-            DiffContent valuesContent1 = diffContentFactory.create(project,
-                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode1.get("chart").get("values")));
-            DiffContent valuesContent2 = diffContentFactory.create(project,
-                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode2.get("chart").get("values")));
-            valuesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            valuesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            SimpleDiffRequest valuesDiffRequest = new SimpleDiffRequest("Values" + title1 + " vs " + "Values" + title2,
-                    valuesContent1,
-                    valuesContent2,
-                    "Values" + title1 + ".json",
-                    "Values" + title2 + ".json");
-            diffManager.showDiff(project, valuesDiffRequest);
+            if (whatPanel.isValues()) {
+                DiffContent valuesContent1 = diffContentFactory.create(project,
+                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode1.get("chart").get("values")));
+                DiffContent valuesContent2 = diffContentFactory.create(project,
+                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode2.get("chart").get("values")));
+                valuesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+                valuesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+                SimpleDiffRequest valuesDiffRequest = new SimpleDiffRequest("Values" + title1 + " vs " + "Values" + title2,
+                        valuesContent1,
+                        valuesContent2,
+                        "Values" + title1 + ".json",
+                        "Values" + title2 + ".json");
+                diffManager.showDiff(project, valuesDiffRequest);
+            }
 
             // Templates diff
-            DiffContent templatesContent1 = diffContentFactory.create(project, templatesStringBuilder1.toString());
-            DiffContent templatesContent2 = diffContentFactory.create(project, templatesStringBuilder2.toString());
-            templatesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            templatesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            SimpleDiffRequest templatesDiffRequest = new SimpleDiffRequest("Templates" + title1 + " vs " + "Templates" + title2,
-                    templatesContent1,
-                    templatesContent2,
-                    "Templates" + title1 + ".yaml",
-                    "Templates" + title2 + ".yaml");
-            diffManager.showDiff(project, templatesDiffRequest);
+            if (whatPanel.isTemplates()) {
+                DiffContent templatesContent1 = diffContentFactory.create(project, templatesStringBuilder1.toString());
+                DiffContent templatesContent2 = diffContentFactory.create(project, templatesStringBuilder2.toString());
+                templatesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+                templatesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+                SimpleDiffRequest templatesDiffRequest = new SimpleDiffRequest("Templates" + title1 + " vs " + "Templates" + title2,
+                        templatesContent1,
+                        templatesContent2,
+                        "Templates" + title1 + ".yaml",
+                        "Templates" + title2 + ".yaml");
+                diffManager.showDiff(project, templatesDiffRequest);
+            }
 
             // Manifests diff
-            DiffContent manifestsContent1 = diffContentFactory.create(project, jsonNode1.get("manifest").asText().replace("\\n", "\n"));
-            DiffContent manifestsContent2 = diffContentFactory.create(project, jsonNode2.get("manifest").asText().replace("\\n", "\n"));
-            manifestsContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            manifestsContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            SimpleDiffRequest manifestsDiffsRequest = new SimpleDiffRequest("Manifests" + title1 + " vs " + "Manifests" + title2,
-                    manifestsContent1,
-                    manifestsContent2,
-                    "Manifests" + title1 + ".yaml",
-                    "Manifests" + title2 + ".yaml");
-            diffManager.showDiff(project, manifestsDiffsRequest);
+            if (whatPanel.isManifests()) {
+                DiffContent manifestsContent1 = diffContentFactory.create(project, jsonNode1.get("manifest").asText().replace("\\n", "\n"));
+                DiffContent manifestsContent2 = diffContentFactory.create(project, jsonNode2.get("manifest").asText().replace("\\n", "\n"));
+                manifestsContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+                manifestsContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+                SimpleDiffRequest manifestsDiffsRequest = new SimpleDiffRequest("Manifests" + title1 + " vs " + "Manifests" + title2,
+                        manifestsContent1,
+                        manifestsContent2,
+                        "Manifests" + title1 + ".yaml",
+                        "Manifests" + title2 + ".yaml");
+                diffManager.showDiff(project, manifestsDiffsRequest);
+            }
 
             // Hooks diffs
-            DiffContent hooksContent1 = diffContentFactory.create(project, hooksStringBuilder1.toString());
-            DiffContent hooksContent2 = diffContentFactory.create(project, hooksStringBuilder2.toString());
-            hooksContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            hooksContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            SimpleDiffRequest hooksDiffRequest = new SimpleDiffRequest("Hooks" + title1 + " vs " + "Hooks" + title2,
-                    hooksContent1,
-                    hooksContent2,
-                    "Hooks" + title1 + ".yaml",
-                    "Hooks" + title2 + ".yaml");
-            diffManager.showDiff(project, hooksDiffRequest);
+            if (whatPanel.isHooks()) {
+                DiffContent hooksContent1 = diffContentFactory.create(project, hooksStringBuilder1.toString());
+                DiffContent hooksContent2 = diffContentFactory.create(project, hooksStringBuilder2.toString());
+                hooksContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+                hooksContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+                SimpleDiffRequest hooksDiffRequest = new SimpleDiffRequest("Hooks" + title1 + " vs " + "Hooks" + title2,
+                        hooksContent1,
+                        hooksContent2,
+                        "Hooks" + title1 + ".yaml",
+                        "Hooks" + title2 + ".yaml");
+                diffManager.showDiff(project, hooksDiffRequest);
+            }
 
             // Notes diffs
-            DiffContent notesContent1 = diffContentFactory.create(project, jsonNode1.get("info").get("notes").asText().replace("\\n", "\n"));
-            DiffContent notesContent2 = diffContentFactory.create(project, jsonNode2.get("info").get("notes").asText().replace("\\n", "\n"));
-            notesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            notesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
-            SimpleDiffRequest notesDiffRequest = new SimpleDiffRequest("Notes" + title1 + " vs " + "Notes" + title2,
-                    notesContent1,
-                    notesContent2,
-                    "Notes" + title1,
-                    "Notes" + title2);
-            diffManager.showDiff(project, notesDiffRequest);
+            if (whatPanel.isNotes()) {
+                DiffContent notesContent1 = diffContentFactory.create(project, jsonNode1.get("info").get("notes").asText().replace("\\n", "\n"));
+                DiffContent notesContent2 = diffContentFactory.create(project, jsonNode2.get("info").get("notes").asText().replace("\\n", "\n"));
+                notesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+                notesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
+                SimpleDiffRequest notesDiffRequest = new SimpleDiffRequest("Notes" + title1 + " vs " + "Notes" + title2,
+                        notesContent1,
+                        notesContent2,
+                        "Notes" + title1,
+                        "Notes" + title2);
+                diffManager.showDiff(project, notesDiffRequest);
+            }
 
             fileEditorManager.closeFile(sacrificeVirtualFile);
         } catch (IOException e) {
