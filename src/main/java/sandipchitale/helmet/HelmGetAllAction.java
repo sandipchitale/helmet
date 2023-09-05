@@ -13,6 +13,7 @@ import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.components.JBList;
 import io.fabric8.kubernetes.api.model.Namespace;
@@ -88,10 +89,22 @@ public class HelmGetAllAction extends AnAction {
         builder.setDimensionServiceKey("SelectNamespaceHelmReleaseRevision");
         builder.setTitle("Select Helm Release.Revision [ Namespace ]");
         builder.removeAllActions();
-        builder.addOkAction();
+
         builder.addCancelAction();
 
+        builder.addOkAction();
         builder.setOkActionEnabled(false);
+        builder.setOkOperation(() -> {
+            if (whatPanel.isAny()) {
+                builder.getDialogWrapper().close(DialogWrapper.OK_EXIT_CODE);
+            } else {
+                Messages.showMessageDialog(
+                        e.getProject(),
+                        "Please select at least one of chart info, values, templates, manifests, hooks, notes for get",
+                        "Select at Least One for Get",
+                        Messages.getInformationIcon());
+            }
+        });
 
         ListSelectionListener adjustOkActionState = e1 -> {
             builder.setOkActionEnabled(namespaceSecretReleaseRevisionList.getSelectedValue() != null);
