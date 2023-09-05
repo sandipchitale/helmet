@@ -45,21 +45,21 @@ public class HelmDiffAllAction extends AnAction {
 
     private final WhatPanel whatPanel = WhatPanel.build();
 
-    private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionist1 = new JBList<>();
-    private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionist2 = new JBList<>();
+    private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionList1 = new JBList<>();
+    private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionList2 = new JBList<>();
 
     public HelmDiffAllAction() {
         this.kubernetesClient = new KubernetesClientBuilder().build();
 
         JPanel splitPane = new JPanel(new GridLayout(1, 2, 5, 5));
 
-        namespaceSecretReleaseRevisionist1.setCellRenderer(ReleaseRevisionNamespaceDefaultListCellRenderer.INSTANCE);
-        namespaceSecretReleaseRevisionist1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        splitPane.add(new JScrollPane(namespaceSecretReleaseRevisionist1));
+        namespaceSecretReleaseRevisionList1.setCellRenderer(ReleaseRevisionNamespaceDefaultListCellRenderer.INSTANCE);
+        namespaceSecretReleaseRevisionList1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        splitPane.add(new JScrollPane(namespaceSecretReleaseRevisionList1));
 
-        namespaceSecretReleaseRevisionist2.setCellRenderer(ReleaseRevisionNamespaceDefaultListCellRenderer.INSTANCE);
-        namespaceSecretReleaseRevisionist2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        splitPane.add(new JScrollPane(namespaceSecretReleaseRevisionist2));
+        namespaceSecretReleaseRevisionList2.setCellRenderer(ReleaseRevisionNamespaceDefaultListCellRenderer.INSTANCE);
+        namespaceSecretReleaseRevisionList2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        splitPane.add(new JScrollPane(namespaceSecretReleaseRevisionList2));
 
         whatPanel.add(splitPane, BorderLayout.CENTER);
     }
@@ -92,8 +92,8 @@ public class HelmDiffAllAction extends AnAction {
                             });
                 });
 
-        namespaceSecretReleaseRevisionist1.setListData(namespaceStringStringNamespaceSecretReleaseRevisionSet.toArray(new NamespaceSecretReleaseRevision[0]));
-        namespaceSecretReleaseRevisionist2.setListData(namespaceStringStringNamespaceSecretReleaseRevisionSet.toArray(new NamespaceSecretReleaseRevision[0]));
+        namespaceSecretReleaseRevisionList1.setListData(namespaceStringStringNamespaceSecretReleaseRevisionSet.toArray(new NamespaceSecretReleaseRevision[0]));
+        namespaceSecretReleaseRevisionList2.setListData(namespaceStringStringNamespaceSecretReleaseRevisionSet.toArray(new NamespaceSecretReleaseRevision[0]));
 
         DialogBuilder builder = new DialogBuilder(e.getProject());
 
@@ -101,26 +101,35 @@ public class HelmDiffAllAction extends AnAction {
         builder.setDimensionServiceKey("SelectNamespaceHelmReleaseRevisionForDiff");
         builder.setTitle("Select Helm Release.Revisions [ Namespaces ] for Diff");
         builder.removeAllActions();
+
         builder.addOkAction();
+        builder.setOkActionEnabled(false);
+
         builder.addCancelAction();
 
-        builder.setOkActionEnabled(false);
         ListSelectionListener adjustOkActionState = e1 -> {
-            builder.setOkActionEnabled(namespaceSecretReleaseRevisionist1.getSelectedValue() != null
-                    && namespaceSecretReleaseRevisionist2.getSelectedValue() != null);
+            builder.setOkActionEnabled(
+                    namespaceSecretReleaseRevisionList1.getSelectedValue() != null
+                    && namespaceSecretReleaseRevisionList2.getSelectedValue() != null);
         };
-        namespaceSecretReleaseRevisionist1.addListSelectionListener(adjustOkActionState);
-        namespaceSecretReleaseRevisionist2.addListSelectionListener(adjustOkActionState);
+        try {
+            namespaceSecretReleaseRevisionList1.addListSelectionListener(adjustOkActionState);
+            namespaceSecretReleaseRevisionList2.addListSelectionListener(adjustOkActionState);
 
-        boolean isOk = builder.show() == DialogWrapper.OK_EXIT_CODE;
-        if (isOk) {
-            if (whatPanel.isAny()) {
-                NamespaceSecretReleaseRevision selectedValue1 = namespaceSecretReleaseRevisionist1.getSelectedValue();
-                NamespaceSecretReleaseRevision selectedValue2 = namespaceSecretReleaseRevisionist2.getSelectedValue();
-                if (selectedValue1 != null && selectedValue2 != null) {
-                    showReleaseRevisionDiff(e.getProject(), selectedValue1, selectedValue2, whatPanel);
+            boolean isOk = builder.show() == DialogWrapper.OK_EXIT_CODE;
+            if (isOk) {
+                if (whatPanel.isAny()) {
+                    NamespaceSecretReleaseRevision selectedValue1 = namespaceSecretReleaseRevisionList1.getSelectedValue();
+                    NamespaceSecretReleaseRevision selectedValue2 = namespaceSecretReleaseRevisionList2.getSelectedValue();
+                    if (selectedValue1 != null && selectedValue2 != null) {
+                        showReleaseRevisionDiff(e.getProject(), selectedValue1, selectedValue2, whatPanel);
+                    }
                 }
             }
+        } finally {
+            // Remove listeners
+            namespaceSecretReleaseRevisionList1.removeListSelectionListener(adjustOkActionState);
+            namespaceSecretReleaseRevisionList2.removeListSelectionListener(adjustOkActionState);
         }
     }
 

@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -92,18 +93,25 @@ public class HelmGetAllAction extends AnAction {
         builder.addCancelAction();
 
         builder.setOkActionEnabled(false);
-        namespaceSecretReleaseRevisionList.addListSelectionListener(e1 -> {
-            builder.setOkActionEnabled(namespaceSecretReleaseRevisionList.getSelectedValue() != null);
-        });
 
-        boolean isOk = builder.show() == DialogWrapper.OK_EXIT_CODE;
-        if (isOk) {
-            if (whatPanel.isAny()) {
-                NamespaceSecretReleaseRevision selectedValue = namespaceSecretReleaseRevisionList.getSelectedValue();
-                if (selectedValue != null) {
-                    showReleaseRevision(e.getProject(), selectedValue, whatPanel);
+        ListSelectionListener adjustOkActionState = e1 -> {
+            builder.setOkActionEnabled(namespaceSecretReleaseRevisionList.getSelectedValue() != null);
+        };
+
+        try {
+            namespaceSecretReleaseRevisionList.addListSelectionListener(adjustOkActionState);
+            boolean isOk = builder.show() == DialogWrapper.OK_EXIT_CODE;
+            if (isOk) {
+                if (whatPanel.isAny()) {
+                    NamespaceSecretReleaseRevision selectedValue = namespaceSecretReleaseRevisionList.getSelectedValue();
+                    if (selectedValue != null) {
+                        showReleaseRevision(e.getProject(), selectedValue, whatPanel);
+                    }
                 }
             }
+        } finally {
+            // Remove listener
+            namespaceSecretReleaseRevisionList.removeListSelectionListener(adjustOkActionState);
         }
 
     }
