@@ -108,6 +108,16 @@ public class HelmDiffAllAction extends AnAction {
         builder.addOkAction();
         builder.setOkActionEnabled(false);
         builder.setOkOperation(() -> {
+            NamespaceSecretReleaseRevision selectedValue1 = namespaceSecretReleaseRevisionList1.getSelectedValue();
+            NamespaceSecretReleaseRevision selectedValue2 = namespaceSecretReleaseRevisionList2.getSelectedValue();
+            if (selectedValue1.equals(selectedValue2)) {
+                Messages.showMessageDialog(
+                        e.getProject(),
+                        "Please select different Release.Revision for diff",
+                        "Select Different Release.Revisions for Diff",
+                        Messages.getInformationIcon());
+                return;
+            }
             if (whatPanel.isAny()) {
                 builder.getDialogWrapper().close(DialogWrapper.OK_EXIT_CODE);
             } else {
@@ -131,18 +141,10 @@ public class HelmDiffAllAction extends AnAction {
 
             boolean isOk = builder.show() == DialogWrapper.OK_EXIT_CODE;
             if (isOk) {
-                if (whatPanel.isAny()) {
-                    NamespaceSecretReleaseRevision selectedValue1 = namespaceSecretReleaseRevisionList1.getSelectedValue();
-                    NamespaceSecretReleaseRevision selectedValue2 = namespaceSecretReleaseRevisionList2.getSelectedValue();
-                    if (selectedValue1 != null && selectedValue2 != null) {
-                        showReleaseRevisionDiff(e.getProject(), selectedValue1, selectedValue2, whatPanel);
-                    }
-                } else {
-                    Messages.showMessageDialog(
-                            e.getProject(),
-                            "Please select at least one of chart info, values, templates, manifests, hooks, notes for diff",
-                            "Select at Least One",
-                            Messages.getInformationIcon());
+                NamespaceSecretReleaseRevision selectedValue1 = namespaceSecretReleaseRevisionList1.getSelectedValue();
+                NamespaceSecretReleaseRevision selectedValue2 = namespaceSecretReleaseRevisionList2.getSelectedValue();
+                if (selectedValue1 != null && selectedValue2 != null) {
+                    showReleaseRevisionDiff(e.getProject(), selectedValue1, selectedValue2, whatPanel);
                 }
             }
         } finally {
