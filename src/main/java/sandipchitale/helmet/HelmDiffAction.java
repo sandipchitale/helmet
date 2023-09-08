@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.zip.GZIPInputStream;
 
-public class HelmDiffAllAction extends AnAction {
+public class HelmDiffAction extends AnAction {
     private final KubernetesClient kubernetesClient;
 
     private final WhatPanel whatPanel = WhatPanel.build();
@@ -49,7 +49,7 @@ public class HelmDiffAllAction extends AnAction {
     private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionList1 = new JBList<>();
     private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionList2 = new JBList<>();
 
-    public HelmDiffAllAction() {
+    public HelmDiffAction() {
         this.kubernetesClient = new KubernetesClientBuilder().build();
 
         JPanel splitPane = new JPanel(new GridLayout(1, 2, 5, 5));

@@ -19,14 +19,14 @@
 NOTE: This plugin requires that you have your KUBECONFIG file configured correctly to connect to your Kubernetes
 cluster, and your can access the Helm secrets for your Helm releases.
 
-This plugin provides actions related to Helm e.g. Tools > Helm > Get All and Tools > Helm > Diff All.
+This plugin provides actions related to Helm e.g. Tools > Helm > Get... and Tools > Helm > Diff...
 
 It loads the Helm Secrets from all namespaces and prompts the user for selection. It decodes the Secret to
 extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selected Helm Release and Revision.
 
 <ul>
 <li>Get... - shows chart info, values, templates, manifests, hooks and notes (as selected) information for the selected Helm Release Revision.</li>
-<li>Diff All - diffs chart info, values, templates, manifests, hooks and notes (as selected) between two selected Helm Release Revisions.</li>
+<li>Diff... - diffs chart info, values, templates, manifests, hooks and notes (as selected) between two selected Helm Release Revisions.</li>
 </ul>
     ]]></description>
 
@@ -38,8 +38,7 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
 <h2>New Features</h2>
 <ul>
     <li>Tools &gt; Helm &gt; Get... action</li>
-    <li>Tools &gt; Helm &gt; Diff Release.Revision action</li>
-    <li>New icon</li>
+    <li>Tools &gt; Helm &gt; Diff... action</li>
 </ul>
 <h2>Known Issues</h2>
 <ul>
@@ -57,16 +56,16 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
             <add-to-group
                     group-id="ToolsMenu"
                     anchor="last"/>
-            <action id="sandipchitale.helmet.HelmGetAllAction"
-                    class="sandipchitale.helmet.HelmGetAllAction"
+            <action id="sandipchitale.helmet.HelmGetAction"
+                    class="sandipchitale.helmet.HelmGetAction"
                     icon="AllIcons.Actions.PreviewDetailsVertically"
                     text="Get..."
                     description="Get chart info, values, templates, manifests, hooks, notes of a Helm release.revision">
             </action>
-            <action id="sandipchitale.helmet.HelmDiffAllAction"
-                    class="sandipchitale.helmet.HelmDiffAllAction"
+            <action id="sandipchitale.helmet.HelmDiffAction"
+                    class="sandipchitale.helmet.HelmDiffAction"
                     icon="AllIcons.Actions.Diff"
-                    text="Diff Release.Revisions..."
+                    text="Diff..."
                     description="Diff chart info, values, templates, manifests, hooks, notes of two Helm release.revisions">
             </action>
         </group>

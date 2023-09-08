@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.zip.GZIPInputStream;
 
-public class HelmGetAllAction extends AnAction {
+public class HelmGetAction extends AnAction {
 
     private final KubernetesClient kubernetesClient;
 
@@ -45,7 +45,7 @@ public class HelmGetAllAction extends AnAction {
     private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionList = new JBList<>();
 
 
-    public HelmGetAllAction() {
+    public HelmGetAction() {
         this.kubernetesClient = new KubernetesClientBuilder().build();
 
         namespaceSecretReleaseRevisionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
