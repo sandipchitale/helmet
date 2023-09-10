@@ -12,8 +12,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 public class HelmReleaseRevisionAccessor {
@@ -109,6 +109,23 @@ public class HelmReleaseRevisionAccessor {
     public Map<String, String> getTemplatesMap() {
         Map<String, String> templatesMap = new TreeMap<>();
         String templates = getTemplates();
+        String[] templatesLines = templates.split("\\r?\\n");
+        String[] template = new String[1];
+        List<String> aTemplateLines = new LinkedList<>();;
+        Arrays.stream(templatesLines).forEach((String templateLine) -> {
+            if (templateLine.startsWith("Template: ")) {
+                if (template[0] != null) {
+                    templatesMap.put(template[0], aTemplateLines.stream().collect(Collectors.joining("\n")));
+                    aTemplateLines.clear();
+                }
+                template[0] = templateLine.substring(10);
+            } else {
+                aTemplateLines.add(templateLine);
+            }
+        });
+        if (template[0] != null) {
+            templatesMap.put(template[0], Arrays.stream(templatesLines).collect(Collectors.joining("\n")));
+        }
         return templatesMap;
     }
 
