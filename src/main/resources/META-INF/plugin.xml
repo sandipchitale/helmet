@@ -40,6 +40,8 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
 <ul>
     <li>Tools &gt; Helm &gt; Get... action</li>
     <li>Tools &gt; Helm &gt; Get Selected Templates... action</li>
+    <li>Tools &gt; Helm &gt; Get Selected Manifests... action</li>
+    <li>Tools &gt; Helm &gt; Get Selected Hooks... action</li>
     <li>Tools &gt; Helm &gt; Diff... action</li>
 </ul>
 <h2>Known Issues</h2>
@@ -68,6 +70,18 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
                     class="sandipchitale.helmet.HelmGetSelectedTemplatesAction"
                     icon="AllIcons.Actions.PreviewDetailsVertically"
                     text="Get Selected Templates..."
+                    description="Get selected templates of a Helm release.revision">
+            </action>
+            <action id="sandipchitale.helmet.HelmGetSelectedManifestsAction"
+                    class="sandipchitale.helmet.HelmGetSelectedManifestsAction"
+                    icon="AllIcons.Actions.PreviewDetailsVertically"
+                    text="Get Selected Manifests..."
+                    description="Get selected templates of a Helm release.revision">
+            </action>
+            <action id="sandipchitale.helmet.HelmGetSelectedHooksAction"
+                    class="sandipchitale.helmet.HelmGetSelectedHooksAction"
+                    icon="AllIcons.Actions.PreviewDetailsVertically"
+                    text="Get Selected Hooks..."
                     description="Get selected templates of a Helm release.revision">
             </action>
             <action id="sandipchitale.helmet.HelmDiffAction"

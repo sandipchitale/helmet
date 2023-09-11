@@ -13,7 +13,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 public class HelmReleaseRevisionAccessor {
@@ -94,12 +93,11 @@ public class HelmReleaseRevisionAccessor {
             StringBuilder templatesStringBuilder = new StringBuilder();
             ArrayNode templatesArrayNode = (ArrayNode) releaseJsonNode.get("chart").get("templates");
             templatesArrayNode.forEach(template -> {
-                templatesStringBuilder.append("Template: ");
+                templatesStringBuilder.append("# Template: ");
                 templatesStringBuilder.append(template.get("name").asText());
                 templatesStringBuilder.append("\n");
                 templatesStringBuilder.append(new String(Base64Coder.decode(template.get("data").asText()), StandardCharsets.UTF_8));
                 templatesStringBuilder.append("\n");
-                templatesStringBuilder.append("----\n");
             });
             templates = templatesStringBuilder.toString();
         }
@@ -111,20 +109,20 @@ public class HelmReleaseRevisionAccessor {
         String templates = getTemplates();
         String[] templatesLines = templates.split("\\r?\\n");
         String[] template = new String[1];
-        List<String> aTemplateLines = new LinkedList<>();;
+        List<String> aTemplateLines = new LinkedList<>();
         Arrays.stream(templatesLines).forEach((String templateLine) -> {
-            if (templateLine.startsWith("Template: ")) {
+            if (templateLine.startsWith("# Template: ")) {
                 if (template[0] != null) {
-                    templatesMap.put(template[0], aTemplateLines.stream().collect(Collectors.joining("\n")));
+                    templatesMap.put(template[0], String.join("\n", aTemplateLines));
                     aTemplateLines.clear();
                 }
-                template[0] = templateLine.substring(10);
+                template[0] = templateLine.substring(12);
             } else {
                 aTemplateLines.add(templateLine);
             }
         });
         if (template[0] != null) {
-            templatesMap.put(template[0], Arrays.stream(templatesLines).collect(Collectors.joining("\n")));
+            templatesMap.put(template[0], String.join("\n", templatesLines));
         }
         return templatesMap;
     }
@@ -140,6 +138,23 @@ public class HelmReleaseRevisionAccessor {
     public Map<String, String> getManifestsMap() {
         Map<String, String> manifestsMap = new TreeMap<>();
         String manifests = getManifests();
+        String[] manifestsLines = manifests.split("\\r?\\n");
+        String[] manifest = new String[1];
+        List<String> aManifestLines = new LinkedList<>();
+        Arrays.stream(manifestsLines).forEach((String manifestLine) -> {
+            if (manifestLine.startsWith("# Source: ")) {
+                if (manifest[0] != null) {
+                    manifestsMap.put(manifest[0], String.join("\n", aManifestLines));
+                    aManifestLines.clear();
+                }
+                manifest[0] = manifestLine.substring(10);
+            } else {
+                aManifestLines.add(manifestLine);
+            }
+        });
+        if (manifest[0] != null) {
+            manifestsMap.put(manifest[0], String.join("\n", manifestsLines));
+        }
         return manifestsMap;
     }
 
@@ -149,9 +164,9 @@ public class HelmReleaseRevisionAccessor {
             StringBuilder hooksStringBuilder = new StringBuilder();
             ArrayNode hooksArrayNode = (ArrayNode) releaseJsonNode.get("hooks");
             hooksArrayNode.forEach(hook -> {
-                hooksStringBuilder.append(String.format("Hook: %s Events: %s\n", hook.get("path").asText(), hook.get("events")));
+                hooksStringBuilder.append(String.format("# Hook: %s\n", hook.get("path").asText()));
                 hooksStringBuilder.append(hook.get("manifest").asText().replace("\\n", "\n"));
-                hooksStringBuilder.append("----\n");
+                hooksStringBuilder.append("\n");
             });
             hooks = hooksStringBuilder.toString();
         }
@@ -161,6 +176,23 @@ public class HelmReleaseRevisionAccessor {
     public Map<String, String> getHooksMap() {
         Map<String, String> hooksMap = new TreeMap<>();
         String hooks = getHooks();
+        String[] hooksLines = hooks.split("\\r?\\n");
+        String[] hook = new String[1];
+        List<String> aHookLines = new LinkedList<>();
+        Arrays.stream(hooksLines).forEach((String hookLine) -> {
+            if (hookLine.startsWith("# Hook: ")) {
+                if (hook[0] != null) {
+                    hooksMap.put(hook[0], String.join("\n", aHookLines));
+                    aHookLines.clear();
+                }
+                hook[0] = hookLine.substring(8);
+            } else {
+                aHookLines.add(hookLine);
+            }
+        });
+        if (hook[0] != null) {
+            hooksMap.put(hook[0], String.join("\n", hooksLines));
+        }
         return hooksMap;
     }
 
