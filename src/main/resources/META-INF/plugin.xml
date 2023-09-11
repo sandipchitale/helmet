@@ -26,8 +26,13 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
 
 <ul>
 <li>Get... - shows chart info, values, templates, manifests, hooks and notes (as selected) information for the selected Helm Release Revision.</li>
-<li>Get Selected Templates... - shows selected templates information for the selected Helm Release Revision.</li>
+<li>Get Selected Templates... - shows selected templates for the selected Helm Release Revision.</li>
+<li>Get Selected Manifests... - shows selected manifests for the selected Helm Release Revision.</li>
+<li>Get Selected Hooks... - shows selected hooks for the selected Helm Release Revision.</li>
 <li>Diff... - diffs chart info, values, templates, manifests, hooks and notes (as selected) between two selected Helm Release Revisions.</li>
+<li>Diff Selected Template... - diff selected template of two selected Helm Release Revisions.</li>
+<li>Diff Selected Manifest... - diff selected manifest of two selected Helm Release Revisions.</li>
+<li>Diff Selected Hook... - diff selected hook of two selected Helm Release Revisions.</li>
 </ul>
     ]]></description>
 
