@@ -38,12 +38,26 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
     <change-notes><![CDATA[
 <h2>New Features</h2>
 <ul>
+    <li>Tools &gt; Helm &gt; Get Selected Templates... action</li>
+    <li>Tools &gt; Helm &gt; Get Selected Manifests... action</li>
+    <li>Tools &gt; Helm &gt; Get Selected Hooks... action</li>
+    <li>Tools &gt; Helm &gt; Diff Selected Templates... action</li>
+    <li>Tools &gt; Helm &gt; Diff Selected Manifests... action</li>
+    <li>Tools &gt; Helm &gt; Diff Selected Hooks... action</li>
+</ul>
+
+<h2>Features</h2>
+<ul>
     <li>Tools &gt; Helm &gt; Get... action</li>
     <li>Tools &gt; Helm &gt; Get Selected Templates... action</li>
     <li>Tools &gt; Helm &gt; Get Selected Manifests... action</li>
     <li>Tools &gt; Helm &gt; Get Selected Hooks... action</li>
     <li>Tools &gt; Helm &gt; Diff... action</li>
+    <li>Tools &gt; Helm &gt; Diff Selected Templates... action</li>
+    <li>Tools &gt; Helm &gt; Diff Selected Manifests... action</li>
+    <li>Tools &gt; Helm &gt; Diff Selected Hooks... action</li>
 </ul>
+
 <h2>Known Issues</h2>
 <ul>
     <li>When running Diff command an extraneous, blank split editor pair is shown. Just close it.</li>
@@ -89,6 +103,24 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
                     icon="AllIcons.Actions.Diff"
                     text="Diff..."
                     description="Diff chart info, values, templates, manifests, hooks, notes of two Helm release.revisions">
+            </action>
+            <action id="sandipchitale.helmet.HelmDiffSelectedTemplateAction"
+                    class="sandipchitale.helmet.HelmDiffSelectedTemplateAction"
+                    icon="AllIcons.Actions.Diff"
+                    text="Diff Selected Template..."
+                    description="Diff selected template of each Helm release.revisions">
+            </action>
+            <action id="sandipchitale.helmet.HelmDiffSelectedManifestAction"
+                    class="sandipchitale.helmet.HelmDiffSelectedManifestAction"
+                    icon="AllIcons.Actions.Diff"
+                    text="Diff Selected Manifest..."
+                    description="Diff selected Manifest of each Helm release.revisions">
+            </action>
+            <action id="sandipchitale.helmet.HelmDiffSelectedHookAction"
+                    class="sandipchitale.helmet.HelmDiffSelectedHookAction"
+                    icon="AllIcons.Actions.Diff"
+                    text="Diff Selected Hook..."
+                    description="Diff selected Hook of each Helm release.revisions">
             </action>
         </group>
     </actions>

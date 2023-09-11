@@ -96,7 +96,7 @@ public class HelmGetSelectedTemplatesAction extends AnAction {
             if (isOk) {
                 NamespaceSecretReleaseRevision selectedValue = namespaceSecretReleaseRevisionList.getSelectedValue();
                 if (selectedValue != null) {
-                    showReleaseRevision(e.getProject(), selectedValue);
+                    showSelectedTemplatesOfReleaseRevision(e.getProject(), selectedValue);
                 }
             }
         } finally {
@@ -106,8 +106,8 @@ public class HelmGetSelectedTemplatesAction extends AnAction {
 
     }
 
-    private static void showReleaseRevision(Project project,
-                                            NamespaceSecretReleaseRevision namespaceSecretStringStringNamespaceSecretReleaseRevision) {
+    private static void showSelectedTemplatesOfReleaseRevision(Project project,
+                                                               NamespaceSecretReleaseRevision namespaceSecretStringStringNamespaceSecretReleaseRevision) {
         HelmReleaseRevisionAccessor helmReleaseRevisionAccessor = new HelmReleaseRevisionAccessor(namespaceSecretStringStringNamespaceSecretReleaseRevision);
         String title = helmReleaseRevisionAccessor.getTitle();
 
