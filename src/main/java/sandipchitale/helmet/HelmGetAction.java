@@ -1,6 +1,5 @@
 package sandipchitale.helmet;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -14,21 +13,14 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.components.JBList;
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
+import java.util.Set;
 
-public class HelmGetAction extends AnAction {
-
-    private final KubernetesClient kubernetesClient;
+public class HelmGetAction extends AnAction implements HelmReleaseRevisionSecretsAccessor  {
 
     private final WhatPanel whatPanel = WhatPanel.build();
 
@@ -36,8 +28,6 @@ public class HelmGetAction extends AnAction {
 
 
     public HelmGetAction() {
-        this.kubernetesClient = new KubernetesClientBuilder().build();
-
         namespaceSecretReleaseRevisionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         namespaceSecretReleaseRevisionList.setCellRenderer(ReleaseRevisionNamespaceDefaultListCellRenderer.INSTANCE);
 
@@ -46,33 +36,9 @@ public class HelmGetAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        List<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevision4Set = new ArrayList<>();
-        kubernetesClient
-                .namespaces()
-                .list()
-                .getItems()
-                .forEach((Namespace namespace) -> {
-                    kubernetesClient
-                            .secrets()
-                            .inNamespace(namespace.getMetadata().getName())
-                            .list()
-                            .getItems()
-                            .stream()
-                            .filter(secret -> {
-                                Matcher matcher = Constants.helmSecretNamePattern.matcher(secret.getMetadata().getName());
-                                return (matcher.matches());
-                            })
-                            .forEach(secret -> {
-                                Matcher matcher = Constants.helmSecretNamePattern.matcher(secret.getMetadata().getName());
-                                if (matcher.matches()) {
-                                    String release = matcher.group(1);
-                                    String revision = matcher.group(2);
-                                    namespaceStringStringNamespaceSecretReleaseRevision4Set.add(new NamespaceSecretReleaseRevision(namespace, secret, release, revision));
-                                }
-                            });
-                });
+        Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet = getNamespaceSecretReleaseRevisionSetAllNamespaces();
 
-        namespaceSecretReleaseRevisionList.setModel(JBList.createDefaultListModel(namespaceStringStringNamespaceSecretReleaseRevision4Set));
+        namespaceSecretReleaseRevisionList.setModel(JBList.createDefaultListModel(namespaceStringStringNamespaceSecretReleaseRevisionSet));
 
         DialogBuilder builder = new DialogBuilder(e.getProject());
         builder.setCenterPanel(whatPanel);

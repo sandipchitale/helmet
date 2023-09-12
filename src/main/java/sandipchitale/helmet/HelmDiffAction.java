@@ -1,8 +1,5 @@
 package sandipchitale.helmet;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.intellij.diff.DiffContentFactory;
 import com.intellij.diff.DiffManager;
 import com.intellij.diff.contents.DiffContent;
@@ -21,37 +18,20 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.components.JBList;
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
-import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.zip.GZIPInputStream;
+import java.util.Set;
 
-public class HelmDiffAction extends AnAction {
-    private final KubernetesClient kubernetesClient;
-
+public class HelmDiffAction extends AnAction implements HelmReleaseRevisionSecretsAccessor {
     private final WhatPanel whatPanel = WhatPanel.build();
 
     private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionList1 = new JBList<>();
     private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionList2 = new JBList<>();
 
     public HelmDiffAction() {
-        this.kubernetesClient = new KubernetesClientBuilder().build();
-
         JPanel splitPane = new JPanel(new GridLayout(1, 2, 5, 5));
 
         namespaceSecretReleaseRevisionList1.setCellRenderer(ReleaseRevisionNamespaceDefaultListCellRenderer.INSTANCE);
@@ -67,31 +47,7 @@ public class HelmDiffAction extends AnAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        List<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet = new ArrayList<>();
-        kubernetesClient
-                .namespaces()
-                .list()
-                .getItems()
-                .forEach((Namespace namespace) -> {
-                    kubernetesClient
-                            .secrets()
-                            .inNamespace(namespace.getMetadata().getName())
-                            .list()
-                            .getItems()
-                            .stream()
-                            .filter(secret -> {
-                                Matcher matcher = Constants.helmSecretNamePattern.matcher(secret.getMetadata().getName());
-                                return (matcher.matches());
-                            })
-                            .forEach(secret -> {
-                                Matcher matcher = Constants.helmSecretNamePattern.matcher(secret.getMetadata().getName());
-                                if (matcher.matches()) {
-                                    String release = matcher.group(1);
-                                    String revision = matcher.group(2);
-                                    namespaceStringStringNamespaceSecretReleaseRevisionSet.add(new NamespaceSecretReleaseRevision(namespace, secret, release, revision));
-                                }
-                            });
-                });
+        Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet = getNamespaceSecretReleaseRevisionSetAllNamespaces();
 
         namespaceSecretReleaseRevisionList1.setListData(namespaceStringStringNamespaceSecretReleaseRevisionSet.toArray(new NamespaceSecretReleaseRevision[0]));
         namespaceSecretReleaseRevisionList2.setListData(namespaceStringStringNamespaceSecretReleaseRevisionSet.toArray(new NamespaceSecretReleaseRevision[0]));
