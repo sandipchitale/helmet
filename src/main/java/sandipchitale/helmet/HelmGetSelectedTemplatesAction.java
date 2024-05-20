@@ -38,7 +38,8 @@ public class HelmGetSelectedTemplatesAction extends AnAction implements HelmRele
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet = getNamespaceSecretReleaseRevisionSetAllNamespaces();
+        Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet =
+                getNamespaceSecretReleaseRevisionSetAllNamespaces();
 
         namespaceSecretReleaseRevisionList.setModel(JBList.createDefaultListModel(namespaceStringStringNamespaceSecretReleaseRevisionSet));
 
@@ -53,9 +54,7 @@ public class HelmGetSelectedTemplatesAction extends AnAction implements HelmRele
         builder.addOkAction();
         builder.setOkActionEnabled(false);
 
-        ListSelectionListener adjustOkActionState = (ListSelectionEvent listSelectionEvent) -> {
-            builder.setOkActionEnabled(namespaceSecretReleaseRevisionList.getSelectedValue() != null);
-        };
+        ListSelectionListener adjustOkActionState = (ListSelectionEvent listSelectionEvent) -> builder.setOkActionEnabled(namespaceSecretReleaseRevisionList.getSelectedValue() != null);
 
         try {
             namespaceSecretReleaseRevisionList.addListSelectionListener(adjustOkActionState);
@@ -99,9 +98,8 @@ public class HelmGetSelectedTemplatesAction extends AnAction implements HelmRele
         builder.addOkAction();
         builder.setOkActionEnabled(false);
 
-        templatesList.addListSelectionListener((ListSelectionEvent listSelectionEvent) -> {
-            builder.setOkActionEnabled(templatesList.getSelectedValue() != null);
-        });
+        templatesList.addListSelectionListener((ListSelectionEvent listSelectionEvent) ->
+                builder.setOkActionEnabled(templatesList.getSelectedValue() != null));
 
         boolean isOk = builder.show() == DialogWrapper.OK_EXIT_CODE;
         if (isOk) {

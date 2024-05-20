@@ -16,6 +16,7 @@ import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.Set;
@@ -36,7 +37,8 @@ public class HelmGetAction extends AnAction implements HelmReleaseRevisionSecret
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet = getNamespaceSecretReleaseRevisionSetAllNamespaces();
+        Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet =
+                getNamespaceSecretReleaseRevisionSetAllNamespaces();
 
         namespaceSecretReleaseRevisionList.setModel(JBList.createDefaultListModel(namespaceStringStringNamespaceSecretReleaseRevisionSet));
 
@@ -62,9 +64,8 @@ public class HelmGetAction extends AnAction implements HelmReleaseRevisionSecret
             }
         });
 
-        ListSelectionListener adjustOkActionState = e1 -> {
-            builder.setOkActionEnabled(namespaceSecretReleaseRevisionList.getSelectedValue() != null);
-        };
+        ListSelectionListener adjustOkActionState = (ListSelectionEvent listSelectionEvent) ->
+                builder.setOkActionEnabled(namespaceSecretReleaseRevisionList.getSelectedValue() != null);
 
         try {
             namespaceSecretReleaseRevisionList.addListSelectionListener(adjustOkActionState);
@@ -106,11 +107,7 @@ public class HelmGetAction extends AnAction implements HelmReleaseRevisionSecret
             charInfoLightVirtualFile.setWritable(false);
             // Figure out a way to set language for syntax highlighting based on file extension
             charInfoLightVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
-            if (currentWindow == null) {
-                fileEditorManager.openFile(charInfoLightVirtualFile, true, true);
-            } else {
-                fileEditorManager.openFileWithProviders(charInfoLightVirtualFile, true, currentWindow);
-            }
+            fileEditorManager.openFile(charInfoLightVirtualFile, true, true);
         }
 
         // Values

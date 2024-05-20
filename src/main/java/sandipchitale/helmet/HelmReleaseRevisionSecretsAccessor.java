@@ -28,7 +28,7 @@ public interface HelmReleaseRevisionSecretsAccessor {
         return getNamespaceSecretReleaseRevisionSetInNamespace(kubernetesClient.namespaces().withName(namespace).get());
     }
 
-        default Set<NamespaceSecretReleaseRevision> getNamespaceSecretReleaseRevisionSetInNamespace(Namespace namespace) {
+    default Set<NamespaceSecretReleaseRevision> getNamespaceSecretReleaseRevisionSetInNamespace(Namespace namespace) {
         Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet = new LinkedHashSet<>();
         kubernetesClient
                 .secrets()
