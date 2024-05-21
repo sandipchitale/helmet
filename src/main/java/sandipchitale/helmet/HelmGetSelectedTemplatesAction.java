@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class HelmGetSelectedTemplatesAction extends AnAction implements HelmReleaseRevisionSecretsAccessor {
+public class HelmGetSelectedTemplatesAction extends AnAction {
     private final BorderLayoutPanel whatPanel = new BorderLayoutPanel();
 
     private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionList = new JBList<>();
@@ -39,7 +39,7 @@ public class HelmGetSelectedTemplatesAction extends AnAction implements HelmRele
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet =
-                getNamespaceSecretReleaseRevisionSetAllNamespaces();
+                HelmReleaseRevisionSecretsAccessor.getNamespaceSecretReleaseRevisionSetAllNamespaces();
 
         namespaceSecretReleaseRevisionList.setModel(JBList.createDefaultListModel(namespaceStringStringNamespaceSecretReleaseRevisionSet));
 

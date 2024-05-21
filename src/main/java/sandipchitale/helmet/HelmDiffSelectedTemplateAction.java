@@ -28,7 +28,7 @@ import java.awt.*;
 import java.util.Map;
 import java.util.Set;
 
-public class HelmDiffSelectedTemplateAction extends AnAction implements HelmReleaseRevisionSecretsAccessor {
+public class HelmDiffSelectedTemplateAction extends AnAction {
     private final BorderLayoutPanel sideBySidePanel = new BorderLayoutPanel();
 
     private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionList1 = new JBList<>();
@@ -51,7 +51,8 @@ public class HelmDiffSelectedTemplateAction extends AnAction implements HelmRele
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet = getNamespaceSecretReleaseRevisionSetAllNamespaces();
+        Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet =
+                HelmReleaseRevisionSecretsAccessor.getNamespaceSecretReleaseRevisionSetAllNamespaces();
 
         namespaceSecretReleaseRevisionList1.setListData(namespaceStringStringNamespaceSecretReleaseRevisionSet.toArray(new NamespaceSecretReleaseRevision[0]));
         namespaceSecretReleaseRevisionList2.setListData(namespaceStringStringNamespaceSecretReleaseRevisionSet.toArray(new NamespaceSecretReleaseRevision[0]));

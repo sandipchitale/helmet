@@ -8,10 +8,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-public interface HelmReleaseRevisionSecretsAccessor {
-    KubernetesClient kubernetesClient = new KubernetesClientBuilder().build();
+public class HelmReleaseRevisionSecretsAccessor {
+    static KubernetesClient kubernetesClient = new KubernetesClientBuilder().build();
 
-    default Set<NamespaceSecretReleaseRevision> getNamespaceSecretReleaseRevisionSetAllNamespaces() {
+    static Set<NamespaceSecretReleaseRevision> getNamespaceSecretReleaseRevisionSetAllNamespaces() {
         Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet = new LinkedHashSet<>();
         kubernetesClient
                 .namespaces()
@@ -24,11 +24,11 @@ public interface HelmReleaseRevisionSecretsAccessor {
         return namespaceStringStringNamespaceSecretReleaseRevisionSet;
     }
 
-    default Set<NamespaceSecretReleaseRevision> getNamespaceSecretReleaseRevisionSetInNamespace(String namespace) {
+    static Set<NamespaceSecretReleaseRevision> getNamespaceSecretReleaseRevisionSetInNamespace(String namespace) {
         return getNamespaceSecretReleaseRevisionSetInNamespace(kubernetesClient.namespaces().withName(namespace).get());
     }
 
-    default Set<NamespaceSecretReleaseRevision> getNamespaceSecretReleaseRevisionSetInNamespace(Namespace namespace) {
+    static Set<NamespaceSecretReleaseRevision> getNamespaceSecretReleaseRevisionSetInNamespace(Namespace namespace) {
         Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet = new LinkedHashSet<>();
         kubernetesClient
                 .secrets()

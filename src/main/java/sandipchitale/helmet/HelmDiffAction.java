@@ -25,7 +25,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.Set;
 
-public class HelmDiffAction extends AnAction implements HelmReleaseRevisionSecretsAccessor {
+public class HelmDiffAction extends AnAction {
     private final WhatPanel whatPanel = WhatPanel.build();
 
     private final JBList<NamespaceSecretReleaseRevision> namespaceSecretReleaseRevisionList1 = new JBList<>();
@@ -47,7 +47,8 @@ public class HelmDiffAction extends AnAction implements HelmReleaseRevisionSecre
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet = getNamespaceSecretReleaseRevisionSetAllNamespaces();
+        Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet =
+                HelmReleaseRevisionSecretsAccessor.getNamespaceSecretReleaseRevisionSetAllNamespaces();
 
         namespaceSecretReleaseRevisionList1.setListData(namespaceStringStringNamespaceSecretReleaseRevisionSet.toArray(new NamespaceSecretReleaseRevision[0]));
         namespaceSecretReleaseRevisionList2.setListData(namespaceStringStringNamespaceSecretReleaseRevisionSet.toArray(new NamespaceSecretReleaseRevision[0]));

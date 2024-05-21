@@ -21,7 +21,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.Set;
 
-public class HelmGetAction extends AnAction implements HelmReleaseRevisionSecretsAccessor  {
+public class HelmGetAction extends AnAction {
 
     private final WhatPanel whatPanel = WhatPanel.build();
 
@@ -38,7 +38,7 @@ public class HelmGetAction extends AnAction implements HelmReleaseRevisionSecret
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Set<NamespaceSecretReleaseRevision> namespaceStringStringNamespaceSecretReleaseRevisionSet =
-                getNamespaceSecretReleaseRevisionSetAllNamespaces();
+                HelmReleaseRevisionSecretsAccessor.getNamespaceSecretReleaseRevisionSetAllNamespaces();
 
         namespaceSecretReleaseRevisionList.setModel(JBList.createDefaultListModel(namespaceStringStringNamespaceSecretReleaseRevisionSet));
 
