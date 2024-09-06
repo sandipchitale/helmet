@@ -5,6 +5,7 @@ import com.intellij.util.ui.components.BorderLayoutPanel;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class WhatPanel extends BorderLayoutPanel {
@@ -56,15 +57,15 @@ public class WhatPanel extends BorderLayoutPanel {
 
         whatPanel.allCheckBox.addActionListener(e -> {
             boolean selected = whatPanel.allCheckBox.isSelected();
-                whatPanel.chartInfoCheckBox.setSelected(selected);
-                whatPanel.valuesCheckBox.setSelected(selected);
-                whatPanel.templatesCheckBox.setSelected(selected);
-                whatPanel.manifestsCheckBox.setSelected(selected);
-                whatPanel.hooksCheckBox.setSelected(selected);
-                whatPanel.notesCheckBox.setSelected(selected);
+            whatPanel.chartInfoCheckBox.setSelected(selected);
+            whatPanel.valuesCheckBox.setSelected(selected);
+            whatPanel.templatesCheckBox.setSelected(selected);
+            whatPanel.manifestsCheckBox.setSelected(selected);
+            whatPanel.hooksCheckBox.setSelected(selected);
+            whatPanel.notesCheckBox.setSelected(selected);
         });
 
-        ActionListener deselectAll = e -> whatPanel.allCheckBox.setSelected(false);
+        ActionListener deselectAll = (ActionEvent e) -> whatPanel.allCheckBox.setSelected(false);
         whatPanel.chartInfoCheckBox.addActionListener(deselectAll);
         whatPanel.valuesCheckBox.addActionListener(deselectAll);
         whatPanel.templatesCheckBox.addActionListener(deselectAll);

@@ -1,11 +1,11 @@
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.0"
-    id("org.jetbrains.intellij") version "1.15.0"
+    id("org.jetbrains.kotlin.jvm") version "1.9.24"
+    id("org.jetbrains.intellij") version "1.17.3"
 }
 
 group = "sandipchitale"
-version = "1.0.25"
+version = "1.0.26"
 
 repositories {
     mavenCentral()
@@ -16,7 +16,7 @@ configurations.all {
 }
 
 dependencies {
-    implementation("io.fabric8:kubernetes-client:6.8.0")
+    implementation("io.fabric8:kubernetes-client:6.13.3")
 }
 
 // Configure Gradle IntelliJ Plugin
@@ -40,7 +40,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("222")
-        untilBuild.set("241.*")
+        untilBuild.set("243.*")
     }
 
     signPlugin {
