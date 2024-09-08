@@ -1,10 +1,12 @@
 package sandipchitale.helmet;
 
+import com.intellij.lang.LanguageUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
@@ -21,6 +23,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class HelmGetSelectedManifestsAction extends AnAction {
@@ -115,12 +118,13 @@ public class HelmGetSelectedManifestsAction extends AnAction {
 
                 selectedManifests.forEach((String selectedManifest) -> {
                     // Manifests
+                    FileType fileType = FileTypeUtils.getFileType("YAML");
                     LightVirtualFile manifestsvaluesLightVirtualFile = new LightVirtualFile("Manifest: " + selectedManifest + " of" + title,
-                            PlainTextFileType.INSTANCE,
+                            fileType,
                             manifestsMap.get(selectedManifest));
                     manifestsvaluesLightVirtualFile.setWritable(false);
                     // Figure out a way to set language for syntax highlighting based on file extension
-                    manifestsvaluesLightVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
+                    manifestsvaluesLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(fileType)));
                     fileEditorManager.openFile(manifestsvaluesLightVirtualFile, true, true);
                 });
             }

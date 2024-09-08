@@ -1,10 +1,12 @@
 package sandipchitale.helmet;
 
+import com.intellij.lang.LanguageUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
@@ -21,6 +23,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class HelmGetSelectedTemplatesAction extends AnAction {
@@ -114,12 +117,18 @@ public class HelmGetSelectedTemplatesAction extends AnAction {
 
                 selectedTemplates.forEach((String selectedTemplate) -> {
                     // Templates
+                    // Figure out a way to set language for syntax highlighting based on file extension
+                    FileType fileType = PlainTextFileType.INSTANCE;
+                    if (selectedTemplate.endsWith("/NOTES.txt")) {
+                        fileType = FileTypeUtils.getFileType("Helm TEXT template");
+                    } else {
+                        fileType = FileTypeUtils.getFileType("Helm template file", "YAML");
+                    }
                     LightVirtualFile templatesvaluesLightVirtualFile = new LightVirtualFile("Template: " + selectedTemplate + " of" + title,
-                            PlainTextFileType.INSTANCE,
+                            fileType,
                             templatesMap.get(selectedTemplate));
                     templatesvaluesLightVirtualFile.setWritable(false);
-                    // Figure out a way to set language for syntax highlighting based on file extension
-                    templatesvaluesLightVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
+                    templatesvaluesLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(fileType)));
                     fileEditorManager.openFile(templatesvaluesLightVirtualFile, true, true);
                 });
             }

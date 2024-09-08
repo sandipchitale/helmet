@@ -1,10 +1,13 @@
 package sandipchitale.helmet;
 
+import com.intellij.lang.LanguageUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
@@ -19,6 +22,8 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 
 public class HelmGetAction extends AnAction {
@@ -106,7 +111,7 @@ public class HelmGetAction extends AnAction {
                     helmReleaseRevisionAccessor.getChartInfo());
             charInfoLightVirtualFile.setWritable(false);
             // Figure out a way to set language for syntax highlighting based on file extension
-            charInfoLightVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
+            charInfoLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(FileTypeUtils.getFileType("YAML"))));
             fileEditorManager.openFile(charInfoLightVirtualFile, true, true);
         }
 
@@ -117,7 +122,7 @@ public class HelmGetAction extends AnAction {
                     helmReleaseRevisionAccessor.getValues());
             valuesLightVirtualFile.setWritable(false);
             // Figure out a way to set language for syntax highlighting based on file extension
-            valuesLightVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
+            valuesLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(FileTypeUtils.getFileType("JSON"))));
             fileEditorManager.openFile(valuesLightVirtualFile, true, true);
         }
 
@@ -128,7 +133,7 @@ public class HelmGetAction extends AnAction {
                     helmReleaseRevisionAccessor.getTemplates());
             templatesvaluesLightVirtualFile.setWritable(false);
             // Figure out a way to set language for syntax highlighting based on file extension
-            templatesvaluesLightVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
+            templatesvaluesLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(FileTypeUtils.getFileType("Helm template files" ,"YAML"))));
             fileEditorManager.openFile(templatesvaluesLightVirtualFile, true, true);
         }
 
@@ -139,7 +144,7 @@ public class HelmGetAction extends AnAction {
                     helmReleaseRevisionAccessor.getManifests());
             manifestLightVirtualFile.setWritable(false);
             // Figure out a way to set language for syntax highlighting based on file extension
-            manifestLightVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
+            manifestLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(FileTypeUtils.getFileType("YAML"))));
             fileEditorManager.openFile(manifestLightVirtualFile, true, true);
         }
 
@@ -150,7 +155,7 @@ public class HelmGetAction extends AnAction {
                     helmReleaseRevisionAccessor.getHooks());
             hooksLightVirtualFile.setWritable(false);
             // Figure out a way to set language for syntax highlighting based on file extension
-            hooksLightVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
+            hooksLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(FileTypeUtils.getFileType("YAML"))));
             fileEditorManager.openFile(hooksLightVirtualFile, true, true);
         }
 

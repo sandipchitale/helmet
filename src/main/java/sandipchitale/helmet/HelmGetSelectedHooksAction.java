@@ -1,10 +1,12 @@
 package sandipchitale.helmet;
 
+import com.intellij.lang.LanguageUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
@@ -21,6 +23,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class HelmGetSelectedHooksAction extends AnAction  {
@@ -117,10 +120,12 @@ public class HelmGetSelectedHooksAction extends AnAction  {
 
                 selectedHooks.forEach((String selectedHook) -> {
                     // Hooks
+                    FileType fileType = FileTypeUtils.getFileType("YAML");
                     LightVirtualFile hooksvaluesLightVirtualFile = new LightVirtualFile("Hook: " + selectedHook + " of" + title,
-                            PlainTextFileType.INSTANCE,
+                            fileType,
                             hooksMap.get(selectedHook));
                     hooksvaluesLightVirtualFile.setWritable(false);
+                    hooksvaluesLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(fileType)));
                     // Figure out a way to set language for syntax highlighting based on file extension
                     hooksvaluesLightVirtualFile.setLanguage(PlainTextLanguage.INSTANCE);
                     fileEditorManager.openFile(hooksvaluesLightVirtualFile, true, true);
