@@ -7,7 +7,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
 import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
@@ -22,7 +21,6 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
@@ -106,56 +104,61 @@ public class HelmGetAction extends AnAction {
 
         // Chart Info
         if (whatPanel.isChartInfo()) {
+            FileType fileType = FileTypeUtils.getFileType("YAML");
             LightVirtualFile charInfoLightVirtualFile = new LightVirtualFile(Constants.CHART_INFO + title,
-                    PlainTextFileType.INSTANCE,
+                    fileType,
                     helmReleaseRevisionAccessor.getChartInfo());
             charInfoLightVirtualFile.setWritable(false);
             // Figure out a way to set language for syntax highlighting based on file extension
-            charInfoLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(FileTypeUtils.getFileType("YAML"))));
+            charInfoLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(fileType)));
             fileEditorManager.openFile(charInfoLightVirtualFile, true, true);
         }
 
         // Values
         if (whatPanel.isValues()) {
+            FileType fileType = FileTypeUtils.getFileType("JSON");
             LightVirtualFile valuesLightVirtualFile = new LightVirtualFile(Constants.VALUES + title,
-                    PlainTextFileType.INSTANCE,
+                    fileType,
                     helmReleaseRevisionAccessor.getValues());
             valuesLightVirtualFile.setWritable(false);
             // Figure out a way to set language for syntax highlighting based on file extension
-            valuesLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(FileTypeUtils.getFileType("JSON"))));
+            valuesLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(fileType)));
             fileEditorManager.openFile(valuesLightVirtualFile, true, true);
         }
 
         // Templates
         if (whatPanel.isTemplates()) {
+            FileType fileType = FileTypeUtils.getFileType("Helm template files", "YAML");
             LightVirtualFile templatesvaluesLightVirtualFile = new LightVirtualFile(Constants.TEMPLATES + title,
-                    PlainTextFileType.INSTANCE,
+                    fileType,
                     helmReleaseRevisionAccessor.getTemplates());
             templatesvaluesLightVirtualFile.setWritable(false);
             // Figure out a way to set language for syntax highlighting based on file extension
-            templatesvaluesLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(FileTypeUtils.getFileType("Helm template files" ,"YAML"))));
+            templatesvaluesLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(fileType)));
             fileEditorManager.openFile(templatesvaluesLightVirtualFile, true, true);
         }
 
         // Manifest
         if (whatPanel.isManifests()) {
+            FileType fileType = FileTypeUtils.getFileType("YAML");
             LightVirtualFile manifestLightVirtualFile = new LightVirtualFile(Constants.MANIFESTS + title,
-                    PlainTextFileType.INSTANCE,
+                    fileType,
                     helmReleaseRevisionAccessor.getManifests());
             manifestLightVirtualFile.setWritable(false);
             // Figure out a way to set language for syntax highlighting based on file extension
-            manifestLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(FileTypeUtils.getFileType("YAML"))));
+            manifestLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(fileType)));
             fileEditorManager.openFile(manifestLightVirtualFile, true, true);
         }
 
         // Hooks
         if (whatPanel.isHooks()) {
+            FileType fileType = FileTypeUtils.getFileType("YAML");
             LightVirtualFile hooksLightVirtualFile = new LightVirtualFile(Constants.HOOKS + title,
-                    PlainTextFileType.INSTANCE,
+                    fileType,
                     helmReleaseRevisionAccessor.getHooks());
             hooksLightVirtualFile.setWritable(false);
             // Figure out a way to set language for syntax highlighting based on file extension
-            hooksLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(FileTypeUtils.getFileType("YAML"))));
+            hooksLightVirtualFile.setLanguage(Objects.requireNonNull(LanguageUtil.getFileTypeLanguage(fileType)));
             fileEditorManager.openFile(hooksLightVirtualFile, true, true);
         }
 
