@@ -119,10 +119,12 @@ public class HelmGetSelectedTemplatesAction extends AnAction {
                     // Templates
                     // Figure out a way to set language for syntax highlighting based on file extension
                     FileType fileType = PlainTextFileType.INSTANCE;
-                    if (selectedTemplate.endsWith("/NOTES.txt")) {
+                    if (selectedTemplate.endsWith(".txt")) {
                         fileType = FileTypeUtils.getFileType("Helm TEXT template");
+                    } else if (selectedTemplate.endsWith(".tpl")) {
+                        fileType = FileTypeUtils.getFileType("Go Template", "YAML");
                     } else {
-                        fileType = FileTypeUtils.getFileType("Helm template file", "YAML");
+                        fileType = FileTypeUtils.getFileType("Helm YAML template", "YAML");
                     }
                     LightVirtualFile templatesvaluesLightVirtualFile = new LightVirtualFile("Template: " + selectedTemplate + " of" + title,
                             fileType,
