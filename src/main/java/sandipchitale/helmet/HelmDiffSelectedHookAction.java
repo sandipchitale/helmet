@@ -10,6 +10,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
@@ -183,17 +184,24 @@ public class HelmDiffSelectedHookAction extends AnAction {
             String selectedHook1 = HooksList1.getSelectedValue();
             String selectedHook2 = HooksList2.getSelectedValue();
 
-            DiffContent HooksContent1 = diffContentFactory.create(project,
-                    HooksMap1.get(selectedHook1));
-            DiffContent HooksContent2 = diffContentFactory.create(project,
-                    HooksMap2.get(selectedHook2));
+            FileType fileType = FileTypeUtils.getFileType("YAML");
+            DiffContent HooksContent1 = HelmDiffAction.createDiffContent(diffContentFactory,
+                    project,
+                    selectedHook1 + title1,
+                    HooksMap1.get(selectedHook1),
+                    fileType);
+            DiffContent HooksContent2 = HelmDiffAction.createDiffContent(diffContentFactory,
+                    project,
+                    selectedHook2 + title2,
+                    HooksMap2.get(selectedHook2),
+                    fileType);
             HooksContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
             HooksContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
             SimpleDiffRequest HooksDiffRequest = new SimpleDiffRequest(selectedHook1 + title1 + " vs " + selectedHook2 + title2,
                     HooksContent1,
                     HooksContent2,
-                    selectedHook1 + title1 + ".yaml",
-                    selectedHook2 + title2 + ".yaml");
+                    selectedHook1 + title1,
+                    selectedHook2 + title2);
             diffManager.showDiff(project, HooksDiffRequest);
 
             fileEditorManager.closeFile(sacrificeVirtualFile);

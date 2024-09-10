@@ -13,6 +13,9 @@ class FileTypeUtils {
     }
 
     static FileType getFileType(String fileTypeName, String defaultFileTypeName) {
+//        Arrays.stream(FileTypeManager.getInstance().getRegisteredFileTypes()).forEach((FileType fileType) -> {
+//            System.out.println("Class: " + fileType.getClass().getName() + "\tName: " + fileType.getName() + "\tDescription: " + fileType.getDescription());
+//        });
         Optional<FileType> fileTypeOptional = Arrays.stream(FileTypeManager.getInstance().getRegisteredFileTypes())
                 .filter((FileType fileType) -> fileTypeName.equals(fileType.getName()))
                 .findFirst();

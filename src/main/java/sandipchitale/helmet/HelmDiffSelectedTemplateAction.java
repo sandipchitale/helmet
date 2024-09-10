@@ -10,6 +10,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
@@ -182,19 +183,42 @@ public class HelmDiffSelectedTemplateAction extends AnAction {
             DiffContentFactory diffContentFactory = DiffContentFactory.getInstance();
 
             String selectedTemplate1 = templatesList1.getSelectedValue();
-            String selectedTemplate2 = templatesList2.getSelectedValue();
+            FileType fileType1 = PlainTextFileType.INSTANCE;
+            if (selectedTemplate1.endsWith(".txt")) {
+                fileType1 = FileTypeUtils.getFileType("Helm TEXT template");
+            } else if (selectedTemplate1.endsWith(".tpl")) {
+                fileType1 = FileTypeUtils.getFileType("Go Template", "YAML");
+            } else {
+                fileType1 = FileTypeUtils.getFileType("Helm YAML template", "YAML");
+            }
 
-            DiffContent templatesContent1 = diffContentFactory.create(project,
-                    templatesMap1.get(selectedTemplate1));
-            DiffContent templatesContent2 = diffContentFactory.create(project,
-                    templatesMap2.get(selectedTemplate2));
+            String selectedTemplate2 = templatesList2.getSelectedValue();
+            FileType fileType2 = PlainTextFileType.INSTANCE;
+            if (selectedTemplate2.endsWith(".txt")) {
+                fileType2 = FileTypeUtils.getFileType("Helm TEXT template");
+            } else if (selectedTemplate2.endsWith(".tpl")) {
+                fileType2 = FileTypeUtils.getFileType("Go Template", "YAML");
+            } else {
+                fileType2 = FileTypeUtils.getFileType("Helm YAML template", "YAML");
+            }
+
+            DiffContent templatesContent1 = HelmDiffAction.createDiffContent(diffContentFactory,
+                    project,
+                    selectedTemplate1 + title1,
+                    templatesMap1.get(selectedTemplate1),
+                    fileType1);
+            DiffContent templatesContent2 = HelmDiffAction.createDiffContent(diffContentFactory,
+                    project,
+                    selectedTemplate2 + title2,
+                    templatesMap2.get(selectedTemplate2),
+                    fileType2);
             templatesContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
             templatesContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
             SimpleDiffRequest templatesDiffRequest = new SimpleDiffRequest(selectedTemplate1 + title1 + " vs " + selectedTemplate2 + title2,
                     templatesContent1,
                     templatesContent2,
-                    selectedTemplate1 + title1 + ".yaml",
-                    selectedTemplate2 + title2 + ".yaml");
+                    selectedTemplate1 + title1,
+                    selectedTemplate2 + title2);
             diffManager.showDiff(project, templatesDiffRequest);
 
             fileEditorManager.closeFile(sacrificeVirtualFile);

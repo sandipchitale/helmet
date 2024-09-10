@@ -10,6 +10,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.EditorWindow;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
@@ -183,17 +184,26 @@ public class HelmDiffSelectedManifestAction extends AnAction  {
             String selectedManifest1 = ManifestsList1.getSelectedValue();
             String selectedManifest2 = ManifestsList2.getSelectedValue();
 
-            DiffContent ManifestsContent1 = diffContentFactory.create(project,
-                    ManifestsMap1.get(selectedManifest1));
-            DiffContent ManifestsContent2 = diffContentFactory.create(project,
-                    ManifestsMap2.get(selectedManifest2));
+            FileType fileType = FileTypeUtils.getFileType("YAML");
+
+
+            DiffContent ManifestsContent1 = HelmDiffAction.createDiffContent(diffContentFactory,
+                    project,
+                    selectedManifest1 + title1,
+                    ManifestsMap1.get(selectedManifest1),
+                    fileType);
+            DiffContent ManifestsContent2 = HelmDiffAction.createDiffContent(diffContentFactory,
+                    project,
+                    selectedManifest2 + title2,
+                    ManifestsMap2.get(selectedManifest2),
+                    fileType);
             ManifestsContent1.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
             ManifestsContent2.putUserData(DiffUserDataKeys.FORCE_READ_ONLY, true);
             SimpleDiffRequest ManifestsDiffRequest = new SimpleDiffRequest(selectedManifest1 + title1 + " vs " + selectedManifest2 + title2,
                     ManifestsContent1,
                     ManifestsContent2,
-                    selectedManifest1 + title1 + ".yaml",
-                    selectedManifest2 + title2 + ".yaml");
+                    selectedManifest1 + title1,
+                    selectedManifest2 + title2);
             diffManager.showDiff(project, ManifestsDiffRequest);
 
             fileEditorManager.closeFile(sacrificeVirtualFile);
