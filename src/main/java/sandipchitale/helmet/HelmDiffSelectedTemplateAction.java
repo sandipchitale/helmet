@@ -202,12 +202,12 @@ public class HelmDiffSelectedTemplateAction extends AnAction {
                 fileType2 = FileTypeUtils.getFileType("Helm YAML template", "YAML");
             }
 
-            DiffContent templatesContent1 = HelmDiffAction.createDiffContent(diffContentFactory,
+            DiffContent templatesContent1 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     selectedTemplate1 + title1,
                     templatesMap1.get(selectedTemplate1),
                     fileType1);
-            DiffContent templatesContent2 = HelmDiffAction.createDiffContent(diffContentFactory,
+            DiffContent templatesContent2 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     selectedTemplate2 + title2,
                     templatesMap2.get(selectedTemplate2),

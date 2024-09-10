@@ -187,12 +187,12 @@ public class HelmDiffSelectedManifestAction extends AnAction  {
             FileType fileType = FileTypeUtils.getFileType("YAML");
 
 
-            DiffContent ManifestsContent1 = HelmDiffAction.createDiffContent(diffContentFactory,
+            DiffContent ManifestsContent1 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     selectedManifest1 + title1,
                     ManifestsMap1.get(selectedManifest1),
                     fileType);
-            DiffContent ManifestsContent2 = HelmDiffAction.createDiffContent(diffContentFactory,
+            DiffContent ManifestsContent2 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     selectedManifest2 + title2,
                     ManifestsMap2.get(selectedManifest2),

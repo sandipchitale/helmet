@@ -185,12 +185,12 @@ public class HelmDiffSelectedHookAction extends AnAction {
             String selectedHook2 = HooksList2.getSelectedValue();
 
             FileType fileType = FileTypeUtils.getFileType("YAML");
-            DiffContent HooksContent1 = HelmDiffAction.createDiffContent(diffContentFactory,
+            DiffContent HooksContent1 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     selectedHook1 + title1,
                     HooksMap1.get(selectedHook1),
                     fileType);
-            DiffContent HooksContent2 = HelmDiffAction.createDiffContent(diffContentFactory,
+            DiffContent HooksContent2 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     selectedHook2 + title2,
                     HooksMap2.get(selectedHook2),

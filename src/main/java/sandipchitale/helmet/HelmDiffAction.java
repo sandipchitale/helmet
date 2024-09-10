@@ -143,12 +143,12 @@ public class HelmDiffAction extends AnAction {
         // Chart Info diff
         if (whatPanel.isChartInfo()) {
             FileType fileType = FileTypeUtils.getFileType("YAML");
-            DiffContent chartInfoContent1 = createDiffContent(diffContentFactory,
+            DiffContent chartInfoContent1 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     Constants.CHART_INFO + title1,
                     helmReleaseRevisionAccessor1.getChartInfo(),
                     fileType);
-            DiffContent chartInfoContent2 = createDiffContent(diffContentFactory,
+            DiffContent chartInfoContent2 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     Constants.CHART_INFO + title2,
                     helmReleaseRevisionAccessor2.getChartInfo(),
@@ -167,12 +167,12 @@ public class HelmDiffAction extends AnAction {
         // Values diff
         if (whatPanel.isValues()) {
             FileType fileType = FileTypeUtils.getFileType("JSON");
-            DiffContent valuesContent1 = createDiffContent(diffContentFactory,
+            DiffContent valuesContent1 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     Constants.VALUES + title1,
                     helmReleaseRevisionAccessor1.getValues(),
                     fileType);
-            DiffContent valuesContent2 = createDiffContent(diffContentFactory,
+            DiffContent valuesContent2 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     Constants.VALUES + title2,
                     helmReleaseRevisionAccessor2.getValues(),
@@ -190,12 +190,12 @@ public class HelmDiffAction extends AnAction {
         // Templates diff
         if (whatPanel.isTemplates()) {
             FileType fileType = FileTypeUtils.getFileType("Helm YAML template", "YAML");
-            DiffContent templatesContent1 = createDiffContent(diffContentFactory,
+            DiffContent templatesContent1 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     Constants.TEMPLATES + title1,
                     helmReleaseRevisionAccessor1.getTemplates(),
                     fileType);
-            DiffContent templatesContent2 = createDiffContent(diffContentFactory,
+            DiffContent templatesContent2 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     Constants.TEMPLATES + title2,
                     helmReleaseRevisionAccessor2.getTemplates(),
@@ -213,12 +213,12 @@ public class HelmDiffAction extends AnAction {
         // Manifests diff
         if (whatPanel.isManifests()) {
             FileType fileType = FileTypeUtils.getFileType("YAML");
-            DiffContent manifestsContent1 = createDiffContent(diffContentFactory,
+            DiffContent manifestsContent1 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     Constants.MANIFESTS + title1,
                     helmReleaseRevisionAccessor1.getManifests(),
                     fileType);
-            DiffContent manifestsContent2 = createDiffContent(diffContentFactory,
+            DiffContent manifestsContent2 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     Constants.MANIFESTS + title2,
                     helmReleaseRevisionAccessor2.getManifests(),
@@ -236,12 +236,12 @@ public class HelmDiffAction extends AnAction {
         // Hooks diffs
         if (whatPanel.isHooks()) {
             FileType fileType = FileTypeUtils.getFileType("YAML");
-            DiffContent hooksContent1 = createDiffContent(diffContentFactory,
+            DiffContent hooksContent1 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     Constants.HOOKS + title1,
                     helmReleaseRevisionAccessor1.getHooks(),
                     fileType);
-            DiffContent hooksContent2 = createDiffContent(diffContentFactory,
+            DiffContent hooksContent2 = DiffUtils.createDiffContent(diffContentFactory,
                     project,
                     Constants.HOOKS + title2,
                     helmReleaseRevisionAccessor2.getHooks(),
@@ -276,10 +276,5 @@ public class HelmDiffAction extends AnAction {
 
     }
 
-    // Helper method to create DiffContent with syntax coloring
-    static DiffContent createDiffContent(DiffContentFactory diffContentFactory, Project project, String fileName, String content, FileType fileType) {
-        LightVirtualFile virtualFile = new LightVirtualFile(fileName, fileType, content);
-        return diffContentFactory.create(project, virtualFile);
-    }
 
 }
