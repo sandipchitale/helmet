@@ -39,16 +39,12 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
     <!-- Product and plugin compatibility requirements.
         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
+    <depends optional="true" config-file="kubernetes.xml">com.intellij.kubernetes</depends>
 
     <change-notes><![CDATA[
 <h2>New Features</h2>
 <ul>
-    <li>Tools &gt; Helm &gt; Get Selected Templates... action</li>
-    <li>Tools &gt; Helm &gt; Get Selected Manifests... action</li>
-    <li>Tools &gt; Helm &gt; Get Selected Hooks... action</li>
-    <li>Tools &gt; Helm &gt; Diff Selected Templates... action</li>
-    <li>Tools &gt; Helm &gt; Diff Selected Manifests... action</li>
-    <li>Tools &gt; Helm &gt; Diff Selected Hooks... action</li>
+    <li>Support <b>Helm Get...</b> action on secrets of the form <b>sh.helm.release.v1.kubernetes-dashboard.v1</b> in which Helm stores information about Helm release and revision</li>
 </ul>
 
 <h2>Features</h2>
@@ -126,6 +122,12 @@ extract Chart Info, Values, Templates, Manifests, Hooks and Notes from the selec
                     icon="AllIcons.Actions.Diff"
                     text="Diff Selected Hook..."
                     description="Diff selected Hook of each Helm release.revisions">
+            </action>
+
+            <action class="sandipchitale.helmet.SecretNodeHelmGetAction"
+                    id="sandipchitale.helmet.SecretNodeHelmGetAction"
+                    text="Helm Get...">
+                <add-to-group group-id="ServiceViewItemPopup" anchor="last"/>
             </action>
         </group>
     </actions>

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.fabric8.kubernetes.api.model.Secret;
+import io.kubernetes.client.openapi.models.V1Secret;
 import org.apache.commons.io.IOUtils;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
@@ -39,9 +40,13 @@ public class HelmReleaseRevisionAccessor {
     public JsonNode getReleaseJsonNode() {
         if (releaseJsonNode == null) {
             Secret secret = namespaceSecretReleaseRevision.secret();
-            String release = secret.getData().get("release");
-            byte[] decodedRelease = Base64Coder.decode(release);
-
+            V1Secret v1Secret = namespaceSecretReleaseRevision.v1Secret();
+            byte[] decodedRelease = null;
+            if (secret == null) {
+                decodedRelease = v1Secret.getData().get("release");
+            } else {
+                decodedRelease = Base64Coder.decode(secret.getData().get("release"));
+            }
             decodedRelease = Base64Coder.decode(new String(decodedRelease, StandardCharsets.UTF_8));
             try {
                 GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(decodedRelease));
@@ -61,7 +66,7 @@ public class HelmReleaseRevisionAccessor {
         return String.format(Constants.RELEASE_REVISION_NAMESPACE_FORMAT,
                 namespaceSecretReleaseRevision.release(),
                 namespaceSecretReleaseRevision.revision(),
-                namespaceSecretReleaseRevision.namespace().getMetadata().getName());
+                namespaceSecretReleaseRevision.namespace());
     }
 
     public String getChartInfo() {
@@ -163,11 +168,13 @@ public class HelmReleaseRevisionAccessor {
             JsonNode releaseJsonNode = getReleaseJsonNode();
             StringBuilder hooksStringBuilder = new StringBuilder();
             ArrayNode hooksArrayNode = (ArrayNode) releaseJsonNode.get("hooks");
-            hooksArrayNode.forEach(hook -> {
-                hooksStringBuilder.append(String.format("# Hook: %s\n", hook.get("path").asText()));
-                hooksStringBuilder.append(hook.get("manifest").asText().replace("\\n", "\n"));
-                hooksStringBuilder.append("\n");
-            });
+            if (hooksArrayNode != null) {
+                hooksArrayNode.forEach(hook -> {
+                    hooksStringBuilder.append(String.format("# Hook: %s\n", hook.get("path").asText()));
+                    hooksStringBuilder.append(hook.get("manifest").asText().replace("\\n", "\n"));
+                    hooksStringBuilder.append("\n");
+                });
+            }
             hooks = hooksStringBuilder.toString();
         }
         return hooks;

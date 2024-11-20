@@ -17,7 +17,7 @@ class ReleaseRevisionNamespaceDefaultListCellRenderer extends DefaultListCellRen
             listCellRendererComponentLabel.setText(
                     String.format("%-64s [ %s ]",
                             valueNamespaceSecretReleaseRevision4.release() + "." + valueNamespaceSecretReleaseRevision4.revision(),
-                            valueNamespaceSecretReleaseRevision4.namespace().getMetadata().getName()));
+                            valueNamespaceSecretReleaseRevision4.namespace()));
             listCellRendererComponentLabel.setIcon(HelmetIcons.icon);
         }
         return listCellRendererComponent;

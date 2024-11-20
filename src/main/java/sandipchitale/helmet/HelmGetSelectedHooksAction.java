@@ -67,7 +67,7 @@ public class HelmGetSelectedHooksAction extends AnAction  {
             if (isOk) {
                 NamespaceSecretReleaseRevision selectedValue = namespaceSecretReleaseRevisionList.getSelectedValue();
                 if (selectedValue != null) {
-                    showSelectedHokksOfReleaseRevision(e.getProject(), selectedValue);
+                    showSelectedHooksOfReleaseRevision(e.getProject(), selectedValue);
                 }
             }
         } finally {
@@ -77,7 +77,7 @@ public class HelmGetSelectedHooksAction extends AnAction  {
 
     }
 
-    private static void showSelectedHokksOfReleaseRevision(Project project,
+    private static void showSelectedHooksOfReleaseRevision(Project project,
                                                            NamespaceSecretReleaseRevision namespaceSecretStringStringNamespaceSecretReleaseRevision) {
         HelmReleaseRevisionAccessor helmReleaseRevisionAccessor = new HelmReleaseRevisionAccessor(namespaceSecretStringStringNamespaceSecretReleaseRevision);
         String title = helmReleaseRevisionAccessor.getTitle();

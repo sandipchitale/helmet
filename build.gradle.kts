@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "sandipchitale"
-version = "1.0.32"
+version = "1.0.33"
 
 repositories {
     mavenCentral()
@@ -25,7 +25,7 @@ intellij {
     version.set("2024.2.1")
     type.set("IU") // Target IDE Platform
 
-    plugins.set(listOf(/* Plugin Dependencies */))
+    plugins.set(listOf("com.intellij.kubernetes:242.21829.44"))
 }
 
 tasks {
@@ -36,6 +36,12 @@ tasks {
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions.jvmTarget = "17"
+    }
+
+    runIde {
+        if (project.hasProperty("runIde_ideDir")) {
+            ideDir = file("${project.extra["runIde_ideDir"]}")
+        }
     }
 
     patchPluginXml {
